@@ -1,0 +1,18 @@
+1.1. Glavni cilj prve verzije
+
+Napiši ovako:
+
+korisnik se registruje
+korisnik se prijavi
+aplikacija pošalje broj koraka
+backend sačuva korake
+backend traži preporuku od AI servisa
+AI vrati preporuku
+aplikacija prikaže preporuku
+
+
+mobile-ios → prikaz korisniku, login, koraci, preporuka
+backend → API, logika, čuvanje podataka
+PostgreSQL → baza
+ai-service → generiše preporuku
+Apple Health → izvor podataka za korake

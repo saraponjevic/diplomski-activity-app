@@ -1,0 +1,40 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IntelliJ / Java
+.idea/
+*.iml
+target/
+out/
+
+# Maven / Gradle
+.gradle/
+build/
+
+# Logs
+*.log
+
+# Environment files
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# VS Code
+.vscode/
+
+# Xcode / Swift
+DerivedData/
+.build/
+*.xcworkspace
+xcuserdata/
+*.xcuserstate
+
+# CocoaPods
+Pods/

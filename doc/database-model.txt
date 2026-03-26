@@ -1,0 +1,44 @@
+User
+- id
+- email
+- password
+- firstName
+- lastName
+- age
+- height
+- weight
+- activityLevel
+- goal
+
+
+
+activityLevel može biti: LOW, MEDIUM, HIGH
+goal može biti: INCREASE_ACTIVITY, MAINTAIN_CONDITION, BUILD_HABIT
+
+
+
+Activity
+- id
+- userId
+- date
+- steps
+- goalSteps
+
+
+Recommendation
+- id
+- userId
+- date
+- recommendationType
+- intensity
+- durationMinutes
+- message
+
+
+
+jedan user ima više activity zapisa
+jedan user ima više recommendation zapisa
+
+
+User 1:N Activity
+User 1:N Recommendation
