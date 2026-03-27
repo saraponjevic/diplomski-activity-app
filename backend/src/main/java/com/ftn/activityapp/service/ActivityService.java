@@ -18,6 +18,7 @@ public class ActivityService {
 
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
+    private final RecommendationService recommendationService;
 
     /*
     nađe korisnika po userId
@@ -38,7 +39,7 @@ public class ActivityService {
                 .build();
 
         Activity savedActivity = activityRepository.save(activity);
-
+        recommendationService.generateRecommendation(user.getId());
         return ActivityResponse.builder()
                 .id(savedActivity.getId())
                 .userId(savedActivity.getUser().getId())

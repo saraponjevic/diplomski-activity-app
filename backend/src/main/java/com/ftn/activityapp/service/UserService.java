@@ -1,5 +1,6 @@
 package com.ftn.activityapp.service;
 
+import com.ftn.activityapp.dto.LoginUserRequest;
 import com.ftn.activityapp.dto.RegisterUserRequest;
 import com.ftn.activityapp.dto.UserResponse;
 import com.ftn.activityapp.exception.BadRequestException;
@@ -60,6 +61,27 @@ public class UserService {
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .age(user.getAge())
+                .height(user.getHeight())
+                .weight(user.getWeight())
+                .activityLevel(user.getActivityLevel())
+                .goal(user.getGoal())
+                .build();
+    }
+
+    public UserResponse loginUser(LoginUserRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + request.getEmail()));
+
+        if (!user.getPassword().equals(request.getPassword())) {
+            throw new BadRequestException("Invalid password.");
+        }
 
         return UserResponse.builder()
                 .id(user.getId())

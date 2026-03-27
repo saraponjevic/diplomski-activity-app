@@ -1,5 +1,8 @@
 package com.ftn.activityapp.service;
 
+import com.ftn.activityapp.ai.AiClient;
+import com.ftn.activityapp.ai.AiRecommendationRequest;
+import com.ftn.activityapp.ai.AiRecommendationResponse;
 import com.ftn.activityapp.dto.RecommendationResponse;
 import com.ftn.activityapp.enums.IntensityLevel;
 import com.ftn.activityapp.enums.RecommendationType;
@@ -23,14 +26,8 @@ public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
+    private final AiClient aiClient;
 
-    /*
-    * nadje korsnika
-    * uzme aktivnost u poslednjih 7 dana
-    * izracuna stepsToday i avgLast7Days
-    * na osnovu toga pravi preporuku
-    * sacuva preporuku u bazu
-    *  */
     public RecommendationResponse generateRecommendation(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
@@ -52,40 +49,25 @@ public class RecommendationService {
                 .average()
                 .orElse(0);
 
-        RecommendationType recommendationType;
-        IntensityLevel intensity;
-        int durationMinutes;
-        String message;
+        int daysGoalReachedLast7 = (int) last7DaysActivities.stream()
+                .filter(activity -> activity.getSteps() >= activity.getGoalSteps())
+                .count();
 
-        if (stepsToday < 3000) {
-            recommendationType = RecommendationType.LIGHT_WALK;
-            intensity = IntensityLevel.LOW;
-            durationMinutes = 30;
-            message = "You were not very active today. A light 30-minute walk is recommended.";
-        } else if (stepsToday < 7000) {
-            recommendationType = RecommendationType.MODERATE_WALK;
-            intensity = IntensityLevel.MEDIUM;
-            durationMinutes = 40;
-            message = "Your activity level is moderate today. A 40-minute moderate walk is recommended.";
-        } else if (avgLast7Days > 9000) {
-            recommendationType = RecommendationType.RECOVERY_DAY;
-            intensity = IntensityLevel.LOW;
-            durationMinutes = 20;
-            message = "You have been very active recently. A lighter recovery day is recommended.";
-        } else {
-            recommendationType = RecommendationType.HOME_WORKOUT;
-            intensity = IntensityLevel.MEDIUM;
-            durationMinutes = 25;
-            message = "You are doing well. A short home workout is recommended to maintain consistency.";
-        }
+        AiRecommendationRequest aiRequest = AiRecommendationRequest.builder()
+                .stepsToday(stepsToday)
+                .avgLast7Days(avgLast7Days)
+                .daysGoalReachedLast7(daysGoalReachedLast7)
+                .build();
+
+        AiRecommendationResponse aiResponse = aiClient.getRecommendation(aiRequest);
 
         Recommendation recommendation = Recommendation.builder()
                 .user(user)
                 .date(today)
-                .recommendationType(recommendationType)
-                .intensity(intensity)
-                .durationMinutes(durationMinutes)
-                .message(message)
+                .recommendationType(RecommendationType.valueOf(aiResponse.getRecommendationType()))
+                .intensity(IntensityLevel.valueOf(aiResponse.getIntensity()))
+                .durationMinutes(aiResponse.getDurationMinutes())
+                .message(aiResponse.getMessage())
                 .build();
 
         Recommendation savedRecommendation = recommendationRepository.save(recommendation);

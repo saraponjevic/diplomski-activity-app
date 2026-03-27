@@ -1,5 +1,6 @@
 package com.ftn.activityapp.controller;
 
+import com.ftn.activityapp.dto.LoginUserRequest;
 import com.ftn.activityapp.dto.RegisterUserRequest;
 import com.ftn.activityapp.dto.UserResponse;
 import com.ftn.activityapp.service.UserService;
@@ -24,6 +25,12 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         UserResponse response = userService.getUserById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserResponse> loginUser(@RequestBody LoginUserRequest request) {
+        UserResponse response = userService.loginUser(request);
         return ResponseEntity.ok(response);
     }
 }
