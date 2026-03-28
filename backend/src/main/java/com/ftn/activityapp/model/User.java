@@ -41,4 +41,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserGoal goal;
+
+    @Column(nullable = false)
+    private Integer goalSteps;
 }

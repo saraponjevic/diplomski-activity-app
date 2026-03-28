@@ -17,4 +17,5 @@ public class RegisterUserRequest {
     private Double weight;
     private ActivityLevel activityLevel;
     private UserGoal goal;
+    private Integer goalSteps;
 }

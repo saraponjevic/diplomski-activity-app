@@ -47,4 +47,9 @@ interface ApiService {
     suspend fun loginUser(
         @Body request: LoginUserRequest
     ): UserResponse
+
+    @GET("api/activities/user/{userId}/latest")
+    suspend fun getLatestActivity(
+        @Path("userId") userId: Long
+    ): ActivityResponse
 }

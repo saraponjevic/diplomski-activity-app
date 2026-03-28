@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface RecommendationRepository extends JpaRepository<Recommendation, Long> {
     List<Recommendation> findByUserId(Long userId);
 
-    Optional<Recommendation> findTopByUserIdOrderByDateDesc(Long userId);
+    Optional<Recommendation> findTopByUserIdOrderByDateDescIdDesc(Long userId);
 }

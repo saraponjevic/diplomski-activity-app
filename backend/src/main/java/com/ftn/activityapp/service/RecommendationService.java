@@ -3,7 +3,8 @@ package com.ftn.activityapp.service;
 import com.ftn.activityapp.ai.AiClient;
 import com.ftn.activityapp.ai.AiRecommendationRequest;
 import com.ftn.activityapp.ai.AiRecommendationResponse;
-import com.ftn.activityapp.dto.RecommendationResponse;
+import com.ftn.activityapp.dto.*;
+import com.ftn.activityapp.enums.DailyState;
 import com.ftn.activityapp.enums.IntensityLevel;
 import com.ftn.activityapp.enums.RecommendationType;
 import com.ftn.activityapp.exception.ResourceNotFoundException;
@@ -53,10 +54,17 @@ public class RecommendationService {
                 .filter(activity -> activity.getSteps() >= activity.getGoalSteps())
                 .count();
 
+        int goalSteps = last7DaysActivities.stream()
+                .filter(activity -> activity.getDate().equals(today))
+                .map(Activity::getGoalSteps)
+                .findFirst()
+                .orElse(user.getGoalSteps());
+
         AiRecommendationRequest aiRequest = AiRecommendationRequest.builder()
                 .stepsToday(stepsToday)
                 .avgLast7Days(avgLast7Days)
                 .daysGoalReachedLast7(daysGoalReachedLast7)
+                .goalSteps(goalSteps)
                 .build();
 
         AiRecommendationResponse aiResponse = aiClient.getRecommendation(aiRequest);
@@ -64,10 +72,19 @@ public class RecommendationService {
         Recommendation recommendation = Recommendation.builder()
                 .user(user)
                 .date(today)
+                .dailyState(aiResponse.getDailyState())
                 .recommendationType(RecommendationType.valueOf(aiResponse.getRecommendationType()))
                 .intensity(IntensityLevel.valueOf(aiResponse.getIntensity()))
                 .durationMinutes(aiResponse.getDurationMinutes())
                 .message(aiResponse.getMessage())
+                .notification(aiResponse.getNotification())
+                .nutritionMealSuggestion(aiResponse.getNutrition().getMealSuggestion())
+                .nutritionWaterIntakeTip(aiResponse.getNutrition().getWaterIntakeTip())
+                .nutritionTip(aiResponse.getNutrition().getNutritionTip())
+                .freeTimeSuggestion(aiResponse.getFreeTime().getActivitySuggestion())
+                .wellnessTip(aiResponse.getWellness().getWellnessTip())
+                .restTip(aiResponse.getWellness().getRestTip())
+                .motivationMessage(aiResponse.getMotivation().getMessage())
                 .build();
 
         Recommendation savedRecommendation = recommendationRepository.save(recommendation);
@@ -76,25 +93,59 @@ public class RecommendationService {
                 .id(savedRecommendation.getId())
                 .userId(savedRecommendation.getUser().getId())
                 .date(savedRecommendation.getDate())
+                .dailyState(savedRecommendation.getDailyState())
                 .recommendationType(savedRecommendation.getRecommendationType())
                 .intensity(savedRecommendation.getIntensity())
                 .durationMinutes(savedRecommendation.getDurationMinutes())
                 .message(savedRecommendation.getMessage())
+                .notification(savedRecommendation.getNotification())
+                .nutrition(NutritionResponseDto.builder()
+                        .mealSuggestion(savedRecommendation.getNutritionMealSuggestion())
+                        .waterIntakeTip(savedRecommendation.getNutritionWaterIntakeTip())
+                        .nutritionTip(savedRecommendation.getNutritionTip())
+                        .build())
+                .freeTime(FreeTimeResponseDto.builder()
+                        .activitySuggestion(savedRecommendation.getFreeTimeSuggestion())
+                        .build())
+                .wellness(WellnessResponseDto.builder()
+                        .wellnessTip(savedRecommendation.getWellnessTip())
+                        .restTip(savedRecommendation.getRestTip())
+                        .build())
+                .motivation(MotivationResponseDto.builder()
+                        .message(savedRecommendation.getMotivationMessage())
+                        .build())
                 .build();
     }
 
     public RecommendationResponse getLatestRecommendation(Long userId) {
-        Recommendation recommendation = recommendationRepository.findTopByUserIdOrderByDateDesc(userId)
+        Recommendation recommendation = recommendationRepository.findTopByUserIdOrderByDateDescIdDesc(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("No recommendation found for user id: " + userId));
 
         return RecommendationResponse.builder()
                 .id(recommendation.getId())
                 .userId(recommendation.getUser().getId())
                 .date(recommendation.getDate())
+                .dailyState(recommendation.getDailyState())
                 .recommendationType(recommendation.getRecommendationType())
                 .intensity(recommendation.getIntensity())
                 .durationMinutes(recommendation.getDurationMinutes())
                 .message(recommendation.getMessage())
+                .notification(recommendation.getNotification())
+                .nutrition(NutritionResponseDto.builder()
+                        .mealSuggestion(recommendation.getNutritionMealSuggestion())
+                        .waterIntakeTip(recommendation.getNutritionWaterIntakeTip())
+                        .nutritionTip(recommendation.getNutritionTip())
+                        .build())
+                .freeTime(FreeTimeResponseDto.builder()
+                        .activitySuggestion(recommendation.getFreeTimeSuggestion())
+                        .build())
+                .wellness(WellnessResponseDto.builder()
+                        .wellnessTip(recommendation.getWellnessTip())
+                        .restTip(recommendation.getRestTip())
+                        .build())
+                .motivation(MotivationResponseDto.builder()
+                        .message(recommendation.getMotivationMessage())
+                        .build())
                 .build();
     }
 }

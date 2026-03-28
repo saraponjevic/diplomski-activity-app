@@ -37,4 +37,8 @@ class ActivityRepository {
     suspend fun loginUser(request: LoginUserRequest): UserResponse {
         return RetrofitInstance.api.loginUser(request)
     }
+
+    suspend fun getLatestActivity(userId: Long): ActivityResponse {
+        return RetrofitInstance.api.getLatestActivity(userId)
+    }
 }

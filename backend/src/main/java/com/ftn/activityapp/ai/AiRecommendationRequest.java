@@ -12,4 +12,5 @@ public class AiRecommendationRequest {
     private int stepsToday;
     private double avgLast7Days;
     private int daysGoalReachedLast7;
+    private int goalSteps;
 }

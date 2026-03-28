@@ -64,4 +64,17 @@ public class ActivityService {
                         .build())
                 .toList();
     }
+
+    public ActivityResponse getLatestActivityByUser(Long userId) {
+        Activity activity = activityRepository.findTopByUserIdOrderByDateDescIdDesc(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("No activity found for user id: " + userId));
+
+        return ActivityResponse.builder()
+                .id(activity.getId())
+                .userId(activity.getUser().getId())
+                .date(activity.getDate())
+                .steps(activity.getSteps())
+                .goalSteps(activity.getGoalSteps())
+                .build();
+    }
 }

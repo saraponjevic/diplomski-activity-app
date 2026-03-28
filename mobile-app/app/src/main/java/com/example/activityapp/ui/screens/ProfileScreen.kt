@@ -4,9 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,8 +21,7 @@ import com.example.activityapp.data.repository.ActivityRepository
 
 @Composable
 fun ProfileScreen(
-    userId: Long,
-    onBackClick: () -> Unit
+    userId: Long
 ) {
     val repository = ActivityRepository()
 
@@ -76,15 +73,6 @@ fun ProfileScreen(
                     }
                 }
             }
-        }
-
-        Button(
-            onClick = onBackClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-        ) {
-            Text("Back")
         }
     }
 }

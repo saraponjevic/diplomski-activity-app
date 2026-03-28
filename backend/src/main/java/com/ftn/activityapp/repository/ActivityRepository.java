@@ -14,4 +14,6 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     List<Activity> findByUserIdAndDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
 
     Optional<Activity> findByUserIdAndDate(Long userId, LocalDate date);
+
+    Optional<Activity> findTopByUserIdOrderByDateDescIdDesc(Long userId);
 }
