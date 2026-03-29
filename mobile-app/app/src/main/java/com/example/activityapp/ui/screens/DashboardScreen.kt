@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.activityapp.data.remote.dto.*
+import com.example.activityapp.data.remote.dto.nutrition.NutritionResponse
 import com.example.activityapp.ui.viewmodel.DashboardViewModel
 
 @Composable
@@ -159,14 +160,21 @@ fun MainRecommendationCard(
 
 @Composable
 fun NutritionCard(nutrition: NutritionResponse, onClick: () -> Unit) {
+    val mealsCount = nutrition.meals?.size ?: 0
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
     ) {
-        Column(Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Text("Nutrition", fontWeight = FontWeight.Bold)
-            Text(nutrition.mealSuggestion ?: "No data")
+            Text(nutrition.nutritionStatus ?: "No status")
+            Text(nutrition.nutritionTip ?: "No nutrition tip")
+            Text("Meal suggestions: $mealsCount")
         }
     }
 }

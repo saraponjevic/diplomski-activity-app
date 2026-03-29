@@ -9,5 +9,6 @@ data class UserResponse(
     val height: Double,
     val weight: Double,
     val activityLevel: String,
-    val goal: String
+    val goal: String,
+    val goalSteps: Int
 )

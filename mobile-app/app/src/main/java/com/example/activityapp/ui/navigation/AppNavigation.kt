@@ -7,7 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.activityapp.ui.screens.DashboardScreen
 import com.example.activityapp.ui.screens.FreeTimeScreen
 import com.example.activityapp.ui.screens.MotivationScreen
-import com.example.activityapp.ui.screens.NutritionScreen
+import com.example.activityapp.ui.screens.nutrition.NutritionScreen
 import com.example.activityapp.ui.screens.ProfileScreen
 import com.example.activityapp.ui.screens.RecommendationDetailsScreen
 import com.example.activityapp.ui.screens.WellnessScreen

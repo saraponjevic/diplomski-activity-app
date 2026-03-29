@@ -70,6 +70,7 @@ fun ProfileScreen(
                         Text("Weight: ${user!!.weight}")
                         Text("Activity level: ${user!!.activityLevel}")
                         Text("Goal: ${user!!.goal}")
+                        Text("Daily step goal: ${user!!.goalSteps}")
                     }
                 }
             }

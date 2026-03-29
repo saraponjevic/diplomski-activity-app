@@ -4,13 +4,14 @@ import com.ftn.activityapp.ai.AiClient;
 import com.ftn.activityapp.ai.AiRecommendationRequest;
 import com.ftn.activityapp.ai.AiRecommendationResponse;
 import com.ftn.activityapp.dto.*;
-import com.ftn.activityapp.enums.DailyState;
 import com.ftn.activityapp.enums.IntensityLevel;
 import com.ftn.activityapp.enums.RecommendationType;
 import com.ftn.activityapp.exception.ResourceNotFoundException;
+import com.ftn.activityapp.mapper.NutritionMapper;
 import com.ftn.activityapp.model.Activity;
 import com.ftn.activityapp.model.Recommendation;
 import com.ftn.activityapp.model.User;
+import com.ftn.activityapp.model.nutrition.NutritionRecommendationEntity;
 import com.ftn.activityapp.repository.ActivityRepository;
 import com.ftn.activityapp.repository.RecommendationRepository;
 import com.ftn.activityapp.repository.UserRepository;
@@ -69,6 +70,9 @@ public class RecommendationService {
 
         AiRecommendationResponse aiResponse = aiClient.getRecommendation(aiRequest);
 
+        NutritionRecommendationEntity nutritionEntity =
+                NutritionMapper.toEntity(aiResponse.getNutrition());
+
         Recommendation recommendation = Recommendation.builder()
                 .user(user)
                 .date(today)
@@ -78,9 +82,7 @@ public class RecommendationService {
                 .durationMinutes(aiResponse.getDurationMinutes())
                 .message(aiResponse.getMessage())
                 .notification(aiResponse.getNotification())
-                .nutritionMealSuggestion(aiResponse.getNutrition().getMealSuggestion())
-                .nutritionWaterIntakeTip(aiResponse.getNutrition().getWaterIntakeTip())
-                .nutritionTip(aiResponse.getNutrition().getNutritionTip())
+                .nutritionRecommendation(nutritionEntity)
                 .freeTimeSuggestion(aiResponse.getFreeTime().getActivitySuggestion())
                 .wellnessTip(aiResponse.getWellness().getWellnessTip())
                 .restTip(aiResponse.getWellness().getRestTip())
@@ -89,38 +91,17 @@ public class RecommendationService {
 
         Recommendation savedRecommendation = recommendationRepository.save(recommendation);
 
-        return RecommendationResponse.builder()
-                .id(savedRecommendation.getId())
-                .userId(savedRecommendation.getUser().getId())
-                .date(savedRecommendation.getDate())
-                .dailyState(savedRecommendation.getDailyState())
-                .recommendationType(savedRecommendation.getRecommendationType())
-                .intensity(savedRecommendation.getIntensity())
-                .durationMinutes(savedRecommendation.getDurationMinutes())
-                .message(savedRecommendation.getMessage())
-                .notification(savedRecommendation.getNotification())
-                .nutrition(NutritionResponseDto.builder()
-                        .mealSuggestion(savedRecommendation.getNutritionMealSuggestion())
-                        .waterIntakeTip(savedRecommendation.getNutritionWaterIntakeTip())
-                        .nutritionTip(savedRecommendation.getNutritionTip())
-                        .build())
-                .freeTime(FreeTimeResponseDto.builder()
-                        .activitySuggestion(savedRecommendation.getFreeTimeSuggestion())
-                        .build())
-                .wellness(WellnessResponseDto.builder()
-                        .wellnessTip(savedRecommendation.getWellnessTip())
-                        .restTip(savedRecommendation.getRestTip())
-                        .build())
-                .motivation(MotivationResponseDto.builder()
-                        .message(savedRecommendation.getMotivationMessage())
-                        .build())
-                .build();
+        return mapToResponse(savedRecommendation);
     }
 
     public RecommendationResponse getLatestRecommendation(Long userId) {
         Recommendation recommendation = recommendationRepository.findTopByUserIdOrderByDateDescIdDesc(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("No recommendation found for user id: " + userId));
 
+        return mapToResponse(recommendation);
+    }
+
+    private RecommendationResponse mapToResponse(Recommendation recommendation) {
         return RecommendationResponse.builder()
                 .id(recommendation.getId())
                 .userId(recommendation.getUser().getId())
@@ -131,11 +112,7 @@ public class RecommendationService {
                 .durationMinutes(recommendation.getDurationMinutes())
                 .message(recommendation.getMessage())
                 .notification(recommendation.getNotification())
-                .nutrition(NutritionResponseDto.builder()
-                        .mealSuggestion(recommendation.getNutritionMealSuggestion())
-                        .waterIntakeTip(recommendation.getNutritionWaterIntakeTip())
-                        .nutritionTip(recommendation.getNutritionTip())
-                        .build())
+                .nutrition(NutritionMapper.toDto(recommendation.getNutritionRecommendation()))
                 .freeTime(FreeTimeResponseDto.builder()
                         .activitySuggestion(recommendation.getFreeTimeSuggestion())
                         .build())

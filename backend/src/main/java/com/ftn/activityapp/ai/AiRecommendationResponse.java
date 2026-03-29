@@ -2,7 +2,7 @@ package com.ftn.activityapp.ai;
 
 import com.ftn.activityapp.ai.category.FreeTimeRecommendation;
 import com.ftn.activityapp.ai.category.MotivationRecommendation;
-import com.ftn.activityapp.ai.category.NutritionRecommendation;
+import com.ftn.activityapp.ai.category.nutrition.NutritionRecommendation;
 import com.ftn.activityapp.ai.category.WellnessRecommendation;
 import com.ftn.activityapp.enums.DailyState;
 import lombok.AllArgsConstructor;

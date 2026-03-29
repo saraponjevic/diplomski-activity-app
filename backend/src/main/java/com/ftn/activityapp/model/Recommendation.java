@@ -3,6 +3,7 @@ package com.ftn.activityapp.model;
 import com.ftn.activityapp.enums.DailyState;
 import com.ftn.activityapp.enums.IntensityLevel;
 import com.ftn.activityapp.enums.RecommendationType;
+import com.ftn.activityapp.model.nutrition.NutritionRecommendationEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -49,14 +50,9 @@ public class Recommendation {
     @Column(length = 500)
     private String notification;
 
-    @Column(length = 500)
-    private String nutritionMealSuggestion;
-
-    @Column(length = 500)
-    private String nutritionWaterIntakeTip;
-
-    @Column(length = 500)
-    private String nutritionTip;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "nutrition_recommendation_id")
+    private NutritionRecommendationEntity nutritionRecommendation;
 
     @Column(length = 500)
     private String freeTimeSuggestion;

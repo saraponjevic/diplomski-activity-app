@@ -33,11 +33,13 @@ fun RegisterScreen(
     val weight = remember { mutableStateOf("") }
     val activityLevel = remember { mutableStateOf("") }
     val goal = remember { mutableStateOf("") }
+    val goalSteps = remember { mutableStateOf("") }
 
     val message = remember { mutableStateOf("") }
 
     val repository = ActivityRepository()
     val scope = rememberCoroutineScope()
+
 
     Column(
         modifier = Modifier
@@ -114,6 +116,13 @@ fun RegisterScreen(
             label = { Text("Goal") }
         )
 
+        OutlinedTextField(
+            value = goalSteps.value,
+            onValueChange = { goalSteps.value = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Daily step goal (e.g. 8000)") }
+        )
+
         Button(
             onClick = {
                 scope.launch {
@@ -127,7 +136,8 @@ fun RegisterScreen(
                             height = height.value.toDoubleOrNull() ?: 0.0,
                             weight = weight.value.toDoubleOrNull() ?: 0.0,
                             activityLevel = activityLevel.value,
-                            goal = goal.value
+                            goal = goal.value,
+                            goalSteps = goalSteps.value.toIntOrNull() ?: 8000
                         )
 
                         val response = repository.registerUser(request)

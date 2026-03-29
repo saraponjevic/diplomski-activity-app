@@ -6,13 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class NutritionResponseDto {
-    private String mealSuggestion;
+    private String nutritionStatus;
     private String waterIntakeTip;
     private String nutritionTip;
+    private List<MealSuggestionDto> meals;
 }

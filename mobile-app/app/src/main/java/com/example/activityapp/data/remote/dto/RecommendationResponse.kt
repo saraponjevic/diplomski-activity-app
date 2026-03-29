@@ -1,5 +1,7 @@
 package com.example.activityapp.data.remote.dto
 
+import com.example.activityapp.data.remote.dto.nutrition.NutritionResponse
+
 data class RecommendationResponse(
     val id: Long,
     val userId: Long,

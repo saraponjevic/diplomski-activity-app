@@ -1,9 +1,11 @@
-package com.ftn.activityapp.ai.category;
+package com.ftn.activityapp.ai.category.nutrition;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -11,7 +13,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class NutritionRecommendation {
 
-    private String mealSuggestion;
+    private String nutritionStatus;
     private String waterIntakeTip;
     private String nutritionTip;
+    private List<MealSuggestion> meals;
 }
