@@ -1,8 +1,8 @@
 package com.ftn.activityapp.service;
 
-import com.ftn.activityapp.dto.LoginUserRequest;
-import com.ftn.activityapp.dto.RegisterUserRequest;
-import com.ftn.activityapp.dto.UserResponse;
+import com.ftn.activityapp.dto.user.LoginUserRequest;
+import com.ftn.activityapp.dto.user.RegisterUserRequest;
+import com.ftn.activityapp.dto.user.UserResponse;
 import com.ftn.activityapp.exception.BadRequestException;
 import com.ftn.activityapp.exception.ResourceNotFoundException;
 import com.ftn.activityapp.model.User;

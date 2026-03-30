@@ -1,5 +1,8 @@
 package com.ftn.activityapp.dto;
 
+import com.ftn.activityapp.dto.freetime.FreeTimeResponseDto;
+import com.ftn.activityapp.dto.nutrition.NutritionResponseDto;
+import com.ftn.activityapp.dto.wellness.WellnessResponseDto;
 import com.ftn.activityapp.enums.DailyState;
 import com.ftn.activityapp.enums.IntensityLevel;
 import com.ftn.activityapp.enums.RecommendationType;

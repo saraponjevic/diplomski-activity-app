@@ -1,9 +1,8 @@
 package com.ftn.activityapp.ai;
 
-import com.ftn.activityapp.ai.category.FreeTimeRecommendation;
+import com.ftn.activityapp.ai.category.freetime.FreeTimeRecommendation;
 import com.ftn.activityapp.ai.category.MotivationRecommendation;
 import com.ftn.activityapp.ai.category.nutrition.NutritionRecommendation;
-import com.ftn.activityapp.ai.category.WellnessRecommendation;
 import com.ftn.activityapp.enums.DailyState;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,7 +23,6 @@ public class AiRecommendationResponse {
     private String notification;
     private NutritionRecommendation nutrition;
     private FreeTimeRecommendation freeTime;
-    private WellnessRecommendation wellness;
     private MotivationRecommendation motivation;
 
 }

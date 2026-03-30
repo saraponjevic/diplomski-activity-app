@@ -40,13 +40,84 @@ class NutritionRecommendation(BaseModel):
     meals: List[MealSuggestion]
 
 
+class FreeTimeCategory(str, Enum):
+    ACTIVE = "ACTIVE"
+    CREATIVE = "CREATIVE"
+    RELAX = "RELAX"
+    SOCIAL = "SOCIAL"
+    LEARNING = "LEARNING"
+    PRODUCTIVE = "PRODUCTIVE"
+    OUTDOOR = "OUTDOOR"
+    MINDFULNESS = "MINDFULNESS"
+
+
+class FreeTimeActivity(BaseModel):
+    title: str
+    description: str
+    category: FreeTimeCategory
+    durationMinutes: int
+    intensity: Literal["LOW", "MEDIUM", "HIGH"]
+    imageKey: str
+    sortOrder: int
+
+
+class FreeTimeCategoryGroup(BaseModel):
+    category: FreeTimeCategory
+    activities: List[FreeTimeActivity]
+
+
 class FreeTimeRecommendation(BaseModel):
-    activitySuggestion: str
+    mainSuggestion: str
+    headline: str
+    categoryGroups: List[FreeTimeCategoryGroup]
+
+def free_time_activity(
+    title: str,
+    description: str,
+    category: FreeTimeCategory,
+    duration_minutes: int,
+    intensity: str,
+    image_key: str,
+    sort_order: int
+) -> FreeTimeActivity:
+    return FreeTimeActivity(
+        title=title,
+        description=description,
+        category=category,
+        durationMinutes=duration_minutes,
+        intensity=intensity,
+        imageKey=image_key,
+        sortOrder=sort_order
+    )
+
+
+def free_time_group(
+    category: FreeTimeCategory,
+    activities: List[FreeTimeActivity]
+) -> FreeTimeCategoryGroup:
+    return FreeTimeCategoryGroup(
+        category=category,
+        activities=activities
+    )
 
 
 class WellnessRecommendation(BaseModel):
     wellnessTip: str
     restTip: str
+
+class WellnessActionCard(BaseModel):
+    emoji: str
+    title: str
+    description: str
+    sortOrder: int
+
+
+class WellnessDetailsResponse(BaseModel):
+    mood: str
+    headline: str
+    wellnessTip: str
+    restTip: str
+    actionCards: List[WellnessActionCard]
 
 
 class MotivationRecommendation(BaseModel):
@@ -429,6 +500,200 @@ def build_recovery_day_nutrition() -> NutritionRecommendation:
     )
 
 
+def build_light_walk_free_time() -> FreeTimeRecommendation:
+    return FreeTimeRecommendation(
+        mainSuggestion="A light evening walk or gentle movement would be a great way to spend part of your free time today.",
+        headline="You have been less active today, so here are some balanced ideas to help you move a little, refresh your mind, and use your free time well.",
+        categoryGroups=[
+            free_time_group(
+                FreeTimeCategory.ACTIVE,
+                [
+                    free_time_activity("Short walk", "Take a light 15-minute walk to gently increase your movement today.", FreeTimeCategory.ACTIVE, 15, "LOW", "free_active_short_walk", 1),
+                    free_time_activity("Stretching session", "Do simple stretches for your back, legs, and shoulders.", FreeTimeCategory.ACTIVE, 10, "LOW", "free_active_stretching", 2),
+                    free_time_activity("Light home workout", "Try a few squats, arm circles, and gentle movement at home.", FreeTimeCategory.ACTIVE, 20, "MEDIUM", "free_active_light_workout", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.CREATIVE,
+                [
+                    free_time_activity("Sketch something simple", "Draw something around you without overthinking it.", FreeTimeCategory.CREATIVE, 15, "LOW", "free_creative_sketch", 1),
+                    free_time_activity("Journal your thoughts", "Write a few lines about your day, ideas, or plans.", FreeTimeCategory.CREATIVE, 15, "LOW", "free_creative_journal", 2),
+                    free_time_activity("Make a photo collage idea", "Collect a few photos or ideas you find visually interesting.", FreeTimeCategory.CREATIVE, 20, "LOW", "free_creative_photo_collage", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.PRODUCTIVE,
+                [
+                    free_time_activity("Tidy your desk", "Clean and organize your workspace for a fresh start.", FreeTimeCategory.PRODUCTIVE, 15, "LOW", "free_productive_tidy_desk", 1),
+                    free_time_activity("Organize your room", "Do a quick reset of your room or one small area.", FreeTimeCategory.PRODUCTIVE, 20, "MEDIUM", "free_productive_organize_room", 2),
+                    free_time_activity("Plan tomorrow", "Write down your main tasks and priorities for tomorrow.", FreeTimeCategory.PRODUCTIVE, 10, "LOW", "free_productive_plan_tomorrow", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.OUTDOOR,
+                [
+                    free_time_activity("Park walk", "Go outside for fresh air and a calm walk through a nearby park.", FreeTimeCategory.OUTDOOR, 20, "LOW", "free_outdoor_park_walk", 1),
+                    free_time_activity("Easy bike ride", "Take a short and easy ride if you want light outdoor activity.", FreeTimeCategory.OUTDOOR, 25, "MEDIUM", "free_outdoor_bike_ride", 2),
+                    free_time_activity("Photography walk", "Walk outside and take photos of things that catch your attention.", FreeTimeCategory.OUTDOOR, 20, "LOW", "free_outdoor_photo_walk", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.MINDFULNESS,
+                [
+                    free_time_activity("Breathing break", "Take a few calm breaths and slow down for a moment.", FreeTimeCategory.MINDFULNESS, 5, "LOW", "free_mindfulness_breathing", 1),
+                    free_time_activity("Quiet reflection", "Sit without distractions and let your mind settle a little.", FreeTimeCategory.MINDFULNESS, 10, "LOW", "free_mindfulness_reflection", 2),
+                    free_time_activity("Gratitude notes", "Write down three small things you are grateful for today.", FreeTimeCategory.MINDFULNESS, 10, "LOW", "free_mindfulness_gratitude", 3),
+                ]
+            ),
+        ]
+    )
+
+def build_moderate_walk_free_time() -> FreeTimeRecommendation:
+    return FreeTimeRecommendation(
+        mainSuggestion="You are doing well today, so a balanced mix of movement, relaxation, and meaningful free time would fit you nicely.",
+        headline="Your activity level looks balanced today, so here are some ideas across different categories to keep your rhythm going.",
+        categoryGroups=[
+            free_time_group(
+                FreeTimeCategory.ACTIVE,
+                [
+                    free_time_activity("Brisk walk", "Keep your momentum with a stronger evening walk.", FreeTimeCategory.ACTIVE, 25, "MEDIUM", "free_active_brisk_walk", 1),
+                    free_time_activity("Bodyweight session", "Do a short bodyweight routine to stay active.", FreeTimeCategory.ACTIVE, 20, "MEDIUM", "free_active_bodyweight", 2),
+                    free_time_activity("Dance break", "Put on music and move for a short energizing session.", FreeTimeCategory.ACTIVE, 15, "MEDIUM", "free_active_dance", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.CREATIVE,
+                [
+                    free_time_activity("Drawing time", "Spend a little time drawing or doodling.", FreeTimeCategory.CREATIVE, 20, "LOW", "free_creative_drawing", 1),
+                    free_time_activity("Creative writing", "Write a short story idea, note, or reflection.", FreeTimeCategory.CREATIVE, 20, "LOW", "free_creative_writing", 2),
+                    free_time_activity("Design inspiration board", "Collect images and ideas that inspire you.", FreeTimeCategory.CREATIVE, 20, "LOW", "free_creative_inspiration_board", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.RELAX,
+                [
+                    free_time_activity("Read a chapter", "Unwind with a calm reading break.", FreeTimeCategory.RELAX, 20, "LOW", "free_relax_reading", 1),
+                    free_time_activity("Tea and quiet time", "Pause the day and enjoy a simple calm moment.", FreeTimeCategory.RELAX, 15, "LOW", "free_relax_tea", 2),
+                    free_time_activity("Watch something light", "Choose a short and relaxing video or episode.", FreeTimeCategory.RELAX, 30, "LOW", "free_relax_watch_light", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.SOCIAL,
+                [
+                    free_time_activity("Coffee with a friend", "Spend relaxed time talking with someone you enjoy.", FreeTimeCategory.SOCIAL, 45, "LOW", "free_social_coffee", 1),
+                    free_time_activity("Call someone close", "A short warm conversation can lift your mood.", FreeTimeCategory.SOCIAL, 15, "LOW", "free_social_call_friend", 2),
+                    free_time_activity("Share progress", "Talk to someone about your day or goals.", FreeTimeCategory.SOCIAL, 10, "LOW", "free_social_share_progress", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.LEARNING,
+                [
+                    free_time_activity("Watch a short course", "Learn something interesting in a focused short session.", FreeTimeCategory.LEARNING, 20, "LOW", "free_learning_course", 1),
+                    free_time_activity("Read an article", "Choose one useful article or topic you want to explore.", FreeTimeCategory.LEARNING, 15, "LOW", "free_learning_article", 2),
+                    free_time_activity("Practice a skill", "Spend some time improving a skill you care about.", FreeTimeCategory.LEARNING, 25, "MEDIUM", "free_learning_skill", 3),
+                ]
+            ),
+        ]
+    )
+
+def build_home_workout_free_time() -> FreeTimeRecommendation:
+    return FreeTimeRecommendation(
+        mainSuggestion="You have enough energy for something active today, so your free time can include movement plus a few meaningful lighter options.",
+        headline="You seem ready for a stronger free time routine today, so here are ideas that combine activity, focus, and balance.",
+        categoryGroups=[
+            free_time_group(
+                FreeTimeCategory.ACTIVE,
+                [
+                    free_time_activity("Quick home workout", "Use 20 minutes for a stronger movement session.", FreeTimeCategory.ACTIVE, 20, "MEDIUM", "free_active_home_workout", 1),
+                    free_time_activity("Core training", "Do a short session focused on posture and core strength.", FreeTimeCategory.ACTIVE, 15, "MEDIUM", "free_active_core", 2),
+                    free_time_activity("HIIT session", "Try a short high-energy session if you feel motivated.", FreeTimeCategory.ACTIVE, 15, "HIGH", "free_active_hiit", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.PRODUCTIVE,
+                [
+                    free_time_activity("Plan your week", "Use your momentum to organize upcoming responsibilities.", FreeTimeCategory.PRODUCTIVE, 20, "LOW", "free_productive_plan_week", 1),
+                    free_time_activity("Finish one small task", "Complete something that has been waiting.", FreeTimeCategory.PRODUCTIVE, 25, "MEDIUM", "free_productive_small_task", 2),
+                    free_time_activity("Clean your digital space", "Organize files, notes, or your desktop.", FreeTimeCategory.PRODUCTIVE, 20, "LOW", "free_productive_digital_cleanup", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.OUTDOOR,
+                [
+                    free_time_activity("Longer outdoor walk", "Stay active and clear your head outside.", FreeTimeCategory.OUTDOOR, 30, "MEDIUM", "free_outdoor_long_walk", 1),
+                    free_time_activity("Bike ride", "Use your energy for some fun movement outdoors.", FreeTimeCategory.OUTDOOR, 35, "MEDIUM", "free_outdoor_bike", 2),
+                    free_time_activity("Outdoor stretch break", "Go outside and do a light movement reset.", FreeTimeCategory.OUTDOOR, 10, "LOW", "free_outdoor_stretch", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.SOCIAL,
+                [
+                    free_time_activity("Workout with a friend", "Invite someone to move with you or keep each other motivated.", FreeTimeCategory.SOCIAL, 30, "MEDIUM", "free_social_workout_friend", 1),
+                    free_time_activity("Share your progress", "Tell someone about your active day and goals.", FreeTimeCategory.SOCIAL, 10, "LOW", "free_social_progress", 2),
+                    free_time_activity("Plan a meetup", "Use your good energy to arrange something pleasant.", FreeTimeCategory.SOCIAL, 15, "LOW", "free_social_meetup_plan", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.RELAX,
+                [
+                    free_time_activity("Post-workout stretching", "Let your body calm down with gentle stretching.", FreeTimeCategory.RELAX, 10, "LOW", "free_relax_postworkout_stretch", 1),
+                    free_time_activity("Warm shower and reset", "Recover with a calm and refreshing break.", FreeTimeCategory.RELAX, 15, "LOW", "free_relax_shower", 2),
+                    free_time_activity("Music break", "Rest with music after being productive or active.", FreeTimeCategory.RELAX, 15, "LOW", "free_relax_music", 3),
+                ]
+            ),
+        ]
+    )
+
+
+def build_recovery_day_free_time() -> FreeTimeRecommendation:
+    return FreeTimeRecommendation(
+        mainSuggestion="You have already been quite active, so your free time is better used for recovery, calm habits, and lighter enjoyable activities.",
+        headline="You have done a lot recently, so today’s free time suggestions focus more on rest, mindfulness, and gentle recovery.",
+        categoryGroups=[
+            free_time_group(
+                FreeTimeCategory.RELAX,
+                [
+                    free_time_activity("Gentle stretching", "Release tension with calm full-body stretching.", FreeTimeCategory.RELAX, 10, "LOW", "free_relax_gentle_stretch", 1),
+                    free_time_activity("Reading break", "Choose something light and enjoyable to unwind.", FreeTimeCategory.RELAX, 20, "LOW", "free_relax_read_book", 2),
+                    free_time_activity("Movie night", "Give yourself a calm evening with something easy to watch.", FreeTimeCategory.RELAX, 60, "LOW", "free_relax_movie", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.MINDFULNESS,
+                [
+                    free_time_activity("Breathing session", "Slow your breathing and let your body settle.", FreeTimeCategory.MINDFULNESS, 5, "LOW", "free_mindfulness_breathing_session", 1),
+                    free_time_activity("Mindful walking", "Take a slow walk and focus on each step, your breathing and surroundings.", FreeTimeCategory.MINDFULNESS, 10, "LOW", "free_mindfulness_walk", 2),
+                    free_time_activity("Body scan", "Notice tension and relax each part of your body.", FreeTimeCategory.MINDFULNESS, 10, "LOW", "free_mindfulness_body_scan", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.CREATIVE,
+                [
+                    free_time_activity("Sketching", "Do something creative without pressure.", FreeTimeCategory.CREATIVE, 20, "LOW", "free_creative_sketching", 1),
+                    free_time_activity("Play music", "Listen or gently play something you enjoy.", FreeTimeCategory.CREATIVE, 20, "LOW", "free_creative_music", 2),
+                    free_time_activity("Journaling", "Write down your thoughts and reset mentally.", FreeTimeCategory.CREATIVE, 15, "LOW", "free_creative_recovery_journal", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.SOCIAL,
+                [
+                    free_time_activity("Light conversation", "Talk to someone in a calm and easy way.", FreeTimeCategory.SOCIAL, 15, "LOW", "free_social_light_conversation", 1),
+                    free_time_activity("Coffee break", "Enjoy a simple relaxed moment with someone.", FreeTimeCategory.SOCIAL, 30, "LOW", "free_social_coffee_break", 2),
+                    free_time_activity("Board game or casual time", "Spend time with others in a low-pressure way.", FreeTimeCategory.SOCIAL, 40, "LOW", "free_social_board_game", 3),
+                ]
+            ),
+            free_time_group(
+                FreeTimeCategory.LEARNING,
+                [
+                    free_time_activity("Watch something inspiring", "Choose a calm and interesting short topic.", FreeTimeCategory.LEARNING, 20, "LOW", "free_learning_inspiring_video", 1),
+                    free_time_activity("Read a few pages", "Keep your mind engaged without tiring yourself.", FreeTimeCategory.LEARNING, 15, "LOW", "free_learning_read_pages", 2),
+                    free_time_activity("Explore a hobby topic", "Read or watch content about something you enjoy.", FreeTimeCategory.LEARNING, 20, "LOW", "free_learning_hobby_topic", 3),
+                ]
+            ),
+        ]
+    )
+
+
 def build_response(recommendation_type: str, daily_state: str) -> RecommendationResponse:
     if recommendation_type == "LIGHT_WALK":
         return RecommendationResponse(
@@ -439,9 +704,7 @@ def build_response(recommendation_type: str, daily_state: str) -> Recommendation
             message="A light 30-minute walk is recommended today.",
             notification="Try a short walk today to increase your activity.",
             nutrition=build_light_walk_nutrition(),
-            freeTime=FreeTimeRecommendation(
-                activitySuggestion="Take a relaxing 20-minute walk or read a book."
-            ),
+            freeTime=build_light_walk_free_time(),
             wellness=WellnessRecommendation(
                 wellnessTip="Do 5 minutes of light stretching for your back and legs.",
                 restTip="Try to go to bed a little earlier tonight."
@@ -460,9 +723,7 @@ def build_response(recommendation_type: str, daily_state: str) -> Recommendation
             message="A moderate 40-minute walk is recommended today.",
             notification="You are doing well. Keep moving with a moderate walk.",
             nutrition=build_moderate_walk_nutrition(),
-            freeTime=FreeTimeRecommendation(
-                activitySuggestion="Spend part of your free time outdoors with a walk or light activity."
-            ),
+            freeTime=build_moderate_walk_free_time(),
             wellness=WellnessRecommendation(
                 wellnessTip="Take a short stretching break after sitting for a long time.",
                 restTip="Give yourself a short screen-free break this evening."
@@ -481,9 +742,7 @@ def build_response(recommendation_type: str, daily_state: str) -> Recommendation
             message="A recovery day is recommended due to your recent activity level.",
             notification="Take it easier today and focus on recovery.",
             nutrition=build_recovery_day_nutrition(),
-            freeTime=FreeTimeRecommendation(
-                activitySuggestion="Choose a calm activity such as reading, a short walk or relaxing music."
-            ),
+            freeTime=build_recovery_day_free_time(),
             wellness=WellnessRecommendation(
                 wellnessTip="Do gentle stretching and avoid overexertion today.",
                 restTip="Prioritize sleep and recovery tonight."
@@ -501,9 +760,7 @@ def build_response(recommendation_type: str, daily_state: str) -> Recommendation
         message="A short home workout is recommended today.",
         notification="Stay active today with a quick home workout.",
         nutrition=build_home_workout_nutrition(),
-        freeTime=FreeTimeRecommendation(
-            activitySuggestion="Use 20-30 minutes of free time for a quick home workout."
-        ),
+        freeTime=build_home_workout_free_time(),
         wellness=WellnessRecommendation(
             wellnessTip="Warm up before activity and stretch after exercise.",
             restTip="After your workout, allow some time for relaxation."
@@ -512,6 +769,9 @@ def build_response(recommendation_type: str, daily_state: str) -> Recommendation
             message="You can do this. A short workout today is a great investment in yourself."
         )
     )
+
+
+
 
 
 @app.post("/recommend", response_model=RecommendationResponse)
@@ -535,3 +795,68 @@ def recommend(request: RecommendationRequest):
     )
 
     return build_response(prediction, daily_state)
+
+
+
+
+def build_wellness_response(mood: str) -> WellnessDetailsResponse:
+    if mood == "STRESSED":
+        return WellnessDetailsResponse(
+            mood="STRESSED",
+            headline="It is okay to slow down today. Give yourself space to breathe and reset.",
+            wellnessTip="Choose calm moments, less pressure and gentle activities today.",
+            restTip="Try to reduce screen time tonight and rest a little earlier.",
+            actionCards=[
+                WellnessActionCard(emoji="🌿", title="Go outside", description="Spend 10 minutes in fresh air", sortOrder=1),
+                WellnessActionCard(emoji="🧘", title="Breathing exercise", description="Take 5 slow deep breaths", sortOrder=2),
+                WellnessActionCard(emoji="📵", title="Take a break", description="Step away from screens for a while", sortOrder=3),
+                WellnessActionCard(emoji="🎵", title="Relaxing music", description="Listen to something calming", sortOrder=4),
+            ]
+        )
+
+    if mood == "TIRED":
+        return WellnessDetailsResponse(
+            mood="TIRED",
+            headline="You seem tired today, so focus on recovery and lighter choices.",
+            wellnessTip="Keep your day gentler and save your energy where it matters most.",
+            restTip="Try to rest earlier tonight and avoid overloading your schedule.",
+            actionCards=[
+                WellnessActionCard(emoji="😴", title="Rest", description="Take a short nap or relax", sortOrder=1),
+                WellnessActionCard(emoji="💧", title="Hydrate", description="Drink water to boost energy", sortOrder=2),
+                WellnessActionCard(emoji="🚶", title="Light walk", description="Gentle movement can help", sortOrder=3),
+                WellnessActionCard(emoji="🍎", title="Light snack", description="Eat something light and healthy", sortOrder=4),
+            ]
+        )
+
+    if mood == "HAPPY":
+        return WellnessDetailsResponse(
+            mood="HAPPY",
+            headline="It is great that you feel happy today. Keep that positive energy going.",
+            wellnessTip="Use your good mood to stay active and do something meaningful today.",
+            restTip="End the day with something enjoyable and keep your balance.",
+            actionCards=[
+                WellnessActionCard(emoji="🏃", title="Workout", description="Use your energy for activity", sortOrder=1),
+                WellnessActionCard(emoji="🎯", title="Set a goal", description="Try reaching your step goal today", sortOrder=2),
+                WellnessActionCard(emoji="🤝", title="Socialize", description="Share your good mood with others", sortOrder=3),
+                WellnessActionCard(emoji="🌞", title="Go outside", description="Enjoy the day", sortOrder=4),
+            ]
+        )
+
+    return WellnessDetailsResponse(
+        mood="OKAY",
+        headline="You seem okay today. A few small actions can make your day even better.",
+        wellnessTip="Try light movement, small pauses and simple habits that refresh you.",
+        restTip="Keep a calm evening routine and give yourself enough rest.",
+        actionCards=[
+            WellnessActionCard(emoji="🚶", title="Short walk", description="Take a short walk", sortOrder=1),
+            WellnessActionCard(emoji="🧘", title="Stretch", description="Do a few gentle stretches", sortOrder=2),
+            WellnessActionCard(emoji="📖", title="Take a small break", description="Pause for a calm moment", sortOrder=3),
+            WellnessActionCard(emoji="☕", title="Relax moment", description="Enjoy a quiet and relaxing moment", sortOrder=4),
+        ]
+    )
+
+
+
+@app.get("/wellness/{mood}", response_model=WellnessDetailsResponse)
+def get_wellness_by_mood(mood: str):
+    return build_wellness_response(mood.upper())

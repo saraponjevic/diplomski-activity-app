@@ -55,13 +55,13 @@ public class Recommendation {
     private NutritionRecommendationEntity nutritionRecommendation;
 
     @Column(length = 500)
-    private String freeTimeSuggestion;
+    private String freeTimeMainSuggestion;
 
-    @Column(length = 500)
-    private String wellnessTip;
+    @Column(length = 1000)
+    private String freeTimeHeadline;
 
-    @Column(length = 500)
-    private String restTip;
+    @OneToMany(mappedBy = "recommendation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<com.ftn.activityapp.model.freetime.FreeTimeActivityEntity> freeTimeActivities;
 
     @Column(length = 500)
     private String motivationMessage;

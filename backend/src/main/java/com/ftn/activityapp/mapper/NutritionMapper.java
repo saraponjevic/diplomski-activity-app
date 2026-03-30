@@ -2,8 +2,8 @@ package com.ftn.activityapp.mapper;
 
 import com.ftn.activityapp.ai.category.nutrition.MealSuggestion;
 import com.ftn.activityapp.ai.category.nutrition.NutritionRecommendation;
-import com.ftn.activityapp.dto.MealSuggestionDto;
-import com.ftn.activityapp.dto.NutritionResponseDto;
+import com.ftn.activityapp.dto.nutrition.MealSuggestionDto;
+import com.ftn.activityapp.dto.nutrition.NutritionResponseDto;
 import com.ftn.activityapp.model.nutrition.MealSuggestionEntity;
 import com.ftn.activityapp.model.nutrition.NutritionRecommendationEntity;
 

@@ -1,6 +1,8 @@
 package com.example.activityapp.data.remote.dto
 
+import com.example.activityapp.data.remote.dto.freetime.FreeTimeResponseDto
 import com.example.activityapp.data.remote.dto.nutrition.NutritionResponse
+import com.example.activityapp.data.remote.dto.wellness.WellnessResponse
 
 data class RecommendationResponse(
     val id: Long,
@@ -13,7 +15,7 @@ data class RecommendationResponse(
     val message: String,
     val notification: String?,
     val nutrition: NutritionResponse?,
-    val freeTime: FreeTimeResponse?,
+    val freeTime: FreeTimeResponseDto?,
     val wellness: WellnessResponse?,
     val motivation: MotivationResponse?
 

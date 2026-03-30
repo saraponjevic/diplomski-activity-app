@@ -10,6 +10,8 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import com.example.activityapp.data.remote.dto.LoginUserRequest
+import com.example.activityapp.data.remote.dto.wellness.WellnessDetailsResponse
+import com.example.activityapp.data.remote.dto.wellness.WellnessMoodRequest
 
 interface ApiService {
 
@@ -52,4 +54,16 @@ interface ApiService {
     suspend fun getLatestActivity(
         @Path("userId") userId: Long
     ): ActivityResponse
+
+
+    @POST("api/wellness/{userId}/mood")
+    suspend fun saveMoodAndGetWellness(
+        @Path("userId") userId: Long,
+        @Body request: WellnessMoodRequest
+    ): WellnessDetailsResponse
+
+    @GET("api/wellness/{userId}/today")
+    suspend fun getTodayWellness(
+        @Path("userId") userId: Long
+    ): WellnessDetailsResponse
 }

@@ -5,12 +5,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.activityapp.ui.screens.DashboardScreen
-import com.example.activityapp.ui.screens.FreeTimeScreen
+import com.example.activityapp.ui.screens.freetime.FreeTimeScreen
 import com.example.activityapp.ui.screens.MotivationScreen
 import com.example.activityapp.ui.screens.nutrition.NutritionScreen
 import com.example.activityapp.ui.screens.ProfileScreen
 import com.example.activityapp.ui.screens.RecommendationDetailsScreen
 import com.example.activityapp.ui.screens.WellnessScreen
+
 
 @Composable
 fun AppNavigation(
@@ -76,7 +77,12 @@ fun AppNavigation(
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
-                WellnessScreen(userId = userId)
+                WellnessScreen(
+                    userId = userId,
+                    onBackToPrevious = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
 

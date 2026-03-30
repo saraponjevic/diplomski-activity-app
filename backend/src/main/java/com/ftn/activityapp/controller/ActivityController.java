@@ -1,7 +1,7 @@
 package com.ftn.activityapp.controller;
 
-import com.ftn.activityapp.dto.ActivityResponse;
-import com.ftn.activityapp.dto.CreateActivityRequest;
+import com.ftn.activityapp.dto.activity.ActivityResponse;
+import com.ftn.activityapp.dto.activity.CreateActivityRequest;
 import com.ftn.activityapp.service.ActivityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

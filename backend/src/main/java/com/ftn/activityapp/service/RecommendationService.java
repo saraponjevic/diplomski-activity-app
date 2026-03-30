@@ -3,7 +3,12 @@ package com.ftn.activityapp.service;
 import com.ftn.activityapp.ai.AiClient;
 import com.ftn.activityapp.ai.AiRecommendationRequest;
 import com.ftn.activityapp.ai.AiRecommendationResponse;
-import com.ftn.activityapp.dto.*;
+import com.ftn.activityapp.dto.MotivationResponseDto;
+import com.ftn.activityapp.dto.RecommendationResponse;
+import com.ftn.activityapp.dto.freetime.FreeTimeActivityDto;
+import com.ftn.activityapp.dto.freetime.FreeTimeCategoryGroupDto;
+import com.ftn.activityapp.dto.freetime.FreeTimeResponseDto;
+import com.ftn.activityapp.enums.FreeTimeCategory;
 import com.ftn.activityapp.enums.IntensityLevel;
 import com.ftn.activityapp.enums.RecommendationType;
 import com.ftn.activityapp.exception.ResourceNotFoundException;
@@ -11,6 +16,7 @@ import com.ftn.activityapp.mapper.NutritionMapper;
 import com.ftn.activityapp.model.Activity;
 import com.ftn.activityapp.model.Recommendation;
 import com.ftn.activityapp.model.User;
+import com.ftn.activityapp.model.freetime.FreeTimeActivityEntity;
 import com.ftn.activityapp.model.nutrition.NutritionRecommendationEntity;
 import com.ftn.activityapp.repository.ActivityRepository;
 import com.ftn.activityapp.repository.RecommendationRepository;
@@ -19,7 +25,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -83,11 +93,31 @@ public class RecommendationService {
                 .message(aiResponse.getMessage())
                 .notification(aiResponse.getNotification())
                 .nutritionRecommendation(nutritionEntity)
-                .freeTimeSuggestion(aiResponse.getFreeTime().getActivitySuggestion())
-                .wellnessTip(aiResponse.getWellness().getWellnessTip())
-                .restTip(aiResponse.getWellness().getRestTip())
+                .freeTimeMainSuggestion(aiResponse.getFreeTime().getMainSuggestion())
+                .freeTimeHeadline(aiResponse.getFreeTime().getHeadline())
                 .motivationMessage(aiResponse.getMotivation().getMessage())
                 .build();
+
+        List<FreeTimeActivityEntity> freeTimeActivities = new ArrayList<>();
+
+        aiResponse.getFreeTime().getCategoryGroups().forEach(group -> {
+            group.getActivities().forEach(activity -> {
+                FreeTimeActivityEntity entity = FreeTimeActivityEntity.builder()
+                        .category(activity.getCategory())
+                        .title(activity.getTitle())
+                        .description(activity.getDescription())
+                        .durationMinutes(activity.getDurationMinutes())
+                        .intensity(activity.getIntensity())
+                        .imageKey(mapCategoryToImageKey(activity.getCategory()))
+                        .sortOrder(activity.getSortOrder())
+                        .recommendation(recommendation)
+                        .build();
+
+                freeTimeActivities.add(entity);
+            });
+        });
+
+        recommendation.setFreeTimeActivities(freeTimeActivities);
 
         Recommendation savedRecommendation = recommendationRepository.save(recommendation);
 
@@ -102,6 +132,31 @@ public class RecommendationService {
     }
 
     private RecommendationResponse mapToResponse(Recommendation recommendation) {
+        Map<FreeTimeCategory, List<FreeTimeActivityEntity>> groupedActivities =
+                recommendation.getFreeTimeActivities().stream()
+                        .collect(Collectors.groupingBy(FreeTimeActivityEntity::getCategory));
+
+        List<FreeTimeCategoryGroupDto> freeTimeGroups = groupedActivities.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> FreeTimeCategoryGroupDto.builder()
+                        .category(entry.getKey())
+                        .activities(
+                                entry.getValue().stream()
+                                        .sorted(Comparator.comparing(FreeTimeActivityEntity::getSortOrder))
+                                        .map(activity -> FreeTimeActivityDto.builder()
+                                                .title(activity.getTitle())
+                                                .description(activity.getDescription())
+                                                .category(activity.getCategory())
+                                                .durationMinutes(activity.getDurationMinutes())
+                                                .intensity(activity.getIntensity())
+                                                .imageKey(activity.getImageKey())
+                                                .sortOrder(activity.getSortOrder())
+                                                .build())
+                                        .toList()
+                        )
+                        .build())
+                .toList();
+
         return RecommendationResponse.builder()
                 .id(recommendation.getId())
                 .userId(recommendation.getUser().getId())
@@ -113,16 +168,29 @@ public class RecommendationService {
                 .message(recommendation.getMessage())
                 .notification(recommendation.getNotification())
                 .nutrition(NutritionMapper.toDto(recommendation.getNutritionRecommendation()))
-                .freeTime(FreeTimeResponseDto.builder()
-                        .activitySuggestion(recommendation.getFreeTimeSuggestion())
-                        .build())
-                .wellness(WellnessResponseDto.builder()
-                        .wellnessTip(recommendation.getWellnessTip())
-                        .restTip(recommendation.getRestTip())
-                        .build())
+                .freeTime(
+                        FreeTimeResponseDto.builder()
+                                .mainSuggestion(recommendation.getFreeTimeMainSuggestion())
+                                .headline(recommendation.getFreeTimeHeadline())
+                                .categoryGroups(freeTimeGroups)
+                                .build()
+                )
                 .motivation(MotivationResponseDto.builder()
                         .message(recommendation.getMotivationMessage())
                         .build())
                 .build();
+    }
+
+    private String mapCategoryToImageKey(FreeTimeCategory category) {
+        return switch (category) {
+            case ACTIVE -> "free_category_active";
+            case CREATIVE -> "free_category_creative";
+            case RELAX -> "free_category_relax";
+            case SOCIAL -> "free_category_social";
+            case LEARNING -> "free_category_learning";
+            case PRODUCTIVE -> "free_category_productive";
+            case OUTDOOR -> "free_category_outdoor";
+            case MINDFULNESS -> "free_category_mindfulness";
+        };
     }
 }

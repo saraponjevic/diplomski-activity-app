@@ -1,7 +1,7 @@
 package com.ftn.activityapp.service;
 
-import com.ftn.activityapp.dto.ActivityResponse;
-import com.ftn.activityapp.dto.CreateActivityRequest;
+import com.ftn.activityapp.dto.activity.ActivityResponse;
+import com.ftn.activityapp.dto.activity.CreateActivityRequest;
 import com.ftn.activityapp.exception.ResourceNotFoundException;
 import com.ftn.activityapp.model.Activity;
 import com.ftn.activityapp.model.User;
