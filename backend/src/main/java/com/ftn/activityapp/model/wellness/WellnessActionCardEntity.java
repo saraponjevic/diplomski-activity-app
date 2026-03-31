@@ -23,7 +23,7 @@ public class WellnessActionCardEntity {
     private String description;
 
     @Column(nullable = false)
-    private String emoji;
+    private String imageKey;
 
     @Column(nullable = false)
     private Integer sortOrder;

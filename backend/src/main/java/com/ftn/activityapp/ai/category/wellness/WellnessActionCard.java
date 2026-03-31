@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WellnessActionCard {
-    private String emoji;
+    private String imageKey;
     private String title;
     private String description;
     private Integer sortOrder;

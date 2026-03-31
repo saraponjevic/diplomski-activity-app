@@ -1,4 +1,4 @@
-package com.example.activityapp.data.remote.dto
+package com.example.activityapp.data.remote.dto.user
 
 data class LoginUserRequest(
     val email: String,

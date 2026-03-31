@@ -2,15 +2,12 @@ package com.ftn.activityapp.dto.user;
 
 import com.ftn.activityapp.enums.ActivityLevel;
 import com.ftn.activityapp.enums.UserGoal;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
-public class UserResponse {
-    private Long id;
+public class UpdateUserRequest {
     private String email;
     private String firstName;
     private String lastName;
@@ -20,5 +17,4 @@ public class UserResponse {
     private ActivityLevel activityLevel;
     private UserGoal goal;
     private Integer goalSteps;
-    private String profileImageUrl;
 }

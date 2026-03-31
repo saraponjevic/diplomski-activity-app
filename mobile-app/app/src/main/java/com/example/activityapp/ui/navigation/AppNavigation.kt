@@ -4,14 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.activityapp.ui.screens.ChangePasswordScreen
 import com.example.activityapp.ui.screens.DashboardScreen
-import com.example.activityapp.ui.screens.freetime.FreeTimeScreen
+import com.example.activityapp.ui.screens.EditProfileScreen
 import com.example.activityapp.ui.screens.MotivationScreen
-import com.example.activityapp.ui.screens.nutrition.NutritionScreen
 import com.example.activityapp.ui.screens.ProfileScreen
 import com.example.activityapp.ui.screens.RecommendationDetailsScreen
 import com.example.activityapp.ui.screens.WellnessScreen
-
+import com.example.activityapp.ui.screens.freetime.FreeTimeScreen
+import com.example.activityapp.ui.screens.nutrition.NutritionScreen
 
 @Composable
 fun AppNavigation(
@@ -112,7 +113,43 @@ fun AppNavigation(
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
-                ProfileScreen(userId = userId)
+                ProfileScreen(
+                    userId = userId,
+                    onEditProfileClick = {
+                        navController.navigate("edit_profile")
+                    },
+                    onChangePasswordClick = {
+                        navController.navigate("change_password")
+                    }
+                )
+            }
+        }
+
+        composable("edit_profile") {
+            MainScaffoldScreen(
+                title = "Edit Profile",
+                navController = navController,
+                onLogoutClick = onLogoutClick
+            ) {
+                EditProfileScreen(
+                    userId = userId,
+                    onBackClick = { navController.popBackStack() },
+                    onSaveSuccess = { navController.popBackStack() }
+                )
+            }
+        }
+
+        composable("change_password") {
+            MainScaffoldScreen(
+                title = "Change Password",
+                navController = navController,
+                onLogoutClick = onLogoutClick
+            ) {
+                ChangePasswordScreen(
+                    userId = userId,
+                    onBackClick = { navController.popBackStack() },
+                    onSaveSuccess = { navController.popBackStack() }
+                )
             }
         }
     }

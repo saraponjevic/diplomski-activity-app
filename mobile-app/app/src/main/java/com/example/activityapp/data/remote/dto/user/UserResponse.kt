@@ -1,4 +1,4 @@
-package com.example.activityapp.data.remote.dto
+package com.example.activityapp.data.remote.dto.user
 
 data class UserResponse(
     val id: Long,
@@ -10,5 +10,6 @@ data class UserResponse(
     val weight: Double,
     val activityLevel: String,
     val goal: String,
-    val goalSteps: Int
+    val goalSteps: Int,
+    val profileImageUrl: String?
 )

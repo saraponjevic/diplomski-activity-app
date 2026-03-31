@@ -25,6 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.activityapp.ui.viewmodel.DashboardViewModel
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 
 @Composable
 fun WellnessResultScreen(
@@ -134,21 +140,43 @@ fun WellnessResultScreen(
                 ) {
                     items(cards) { card ->
                         Card(
-                            modifier = Modifier.width(230.dp)
+                            modifier = Modifier
+                                .width(230.dp)
+                                .height(220.dp) // sve iste
                         ) {
                             Column(
-                                modifier = Modifier.padding(18.dp),
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(
-                                    text = card.title ?: "",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+
+                                Image(
+                                    painter = painterResource(id = getWellnessImageRes(card.imageKey)),
+                                    contentDescription = card.title,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(120.dp),
+                                    contentScale = ContentScale.Crop
                                 )
-                                Text(
-                                    text = card.description ?: "",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+
+                                Column(
+                                    modifier = Modifier
+                                        .padding(12.dp)
+                                        .weight(1f),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Text(
+                                        text = card.title ?: "",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1
+                                    )
+
+                                    Text(
+                                        text = card.description ?: "",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        maxLines = 2
+                                    )
+                                }
                             }
                         }
                     }

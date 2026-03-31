@@ -5,8 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
 import com.example.activityapp.ui.navigation.AppNavigation
-import com.example.activityapp.ui.screens.LoginScreen
-import com.example.activityapp.ui.screens.RegisterScreen
+import com.example.activityapp.ui.screens.user.LoginScreen
+import com.example.activityapp.ui.screens.user.RegisterScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

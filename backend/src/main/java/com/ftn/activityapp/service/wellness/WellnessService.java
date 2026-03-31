@@ -64,7 +64,7 @@ public class WellnessService {
         if (aiWellness.getActionCards() != null) {
             List<WellnessActionCardEntity> cards = aiWellness.getActionCards().stream()
                     .map(card -> WellnessActionCardEntity.builder()
-                            .emoji(card.getEmoji())
+                            .imageKey(card.getImageKey())
                             .title(card.getTitle())
                             .description(card.getDescription())
                             .sortOrder(card.getSortOrder())
@@ -96,7 +96,7 @@ public class WellnessService {
                 .restTip(entity.getRestTip())
                 .actionCards(entity.getActionCards().stream()
                         .map(card -> WellnessActionCardDto.builder()
-                                .emoji(card.getEmoji())
+                                .imageKey(card.getImageKey())
                                 .title(card.getTitle())
                                 .description(card.getDescription())
                                 .sortOrder(card.getSortOrder())

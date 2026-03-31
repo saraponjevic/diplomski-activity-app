@@ -1,14 +1,12 @@
-package com.example.activityapp.data.remote.dto
+package com.example.activityapp.data.remote.dto.user
 
-data class RegisterUserRequest(
+data class UpdateUserRequest(
     val email: String,
-    val password: String,
     val firstName: String,
     val lastName: String,
     val age: Int,
     val height: Double,
     val weight: Double,
     val activityLevel: String,
-    val goal: String,
-    val goalSteps: Int
+    val goal: String
 )

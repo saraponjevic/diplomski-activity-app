@@ -3,15 +3,21 @@ package com.example.activityapp.data.remote
 import com.example.activityapp.data.remote.dto.ActivityResponse
 import com.example.activityapp.data.remote.dto.CreateActivityRequest
 import com.example.activityapp.data.remote.dto.RecommendationResponse
-import com.example.activityapp.data.remote.dto.RegisterUserRequest
-import com.example.activityapp.data.remote.dto.UserResponse
+import com.example.activityapp.data.remote.dto.user.ChangePasswordRequest
+import com.example.activityapp.data.remote.dto.user.RegisterUserRequest
+import com.example.activityapp.data.remote.dto.user.UserResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
-import com.example.activityapp.data.remote.dto.LoginUserRequest
+import com.example.activityapp.data.remote.dto.user.LoginUserRequest
+import com.example.activityapp.data.remote.dto.user.UpdateUserRequest
 import com.example.activityapp.data.remote.dto.wellness.WellnessDetailsResponse
 import com.example.activityapp.data.remote.dto.wellness.WellnessMoodRequest
+import okhttp3.MultipartBody
+import retrofit2.http.Multipart
+import retrofit2.http.PUT
+import retrofit2.http.Part
 
 interface ApiService {
 
@@ -66,4 +72,24 @@ interface ApiService {
     suspend fun getTodayWellness(
         @Path("userId") userId: Long
     ): WellnessDetailsResponse
+
+    @Multipart
+    @POST("api/users/{userId}/profile-image")
+    suspend fun uploadProfileImage(
+        @Path("userId") userId: Long,
+        @Part file: MultipartBody.Part
+    ): UserResponse
+
+    @PUT("api/users/{userId}")
+    suspend fun updateUser(
+        @Path("userId") userId: Long,
+        @Body request: UpdateUserRequest
+    ): UserResponse
+
+    @PUT("api/users/{userId}/change-password")
+    suspend fun changePassword(
+        @Path("userId") userId: Long,
+        @Body request: ChangePasswordRequest
+    )
+
 }

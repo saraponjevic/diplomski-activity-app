@@ -106,7 +106,7 @@ class WellnessRecommendation(BaseModel):
     restTip: str
 
 class WellnessActionCard(BaseModel):
-    emoji: str
+    imageKey: str
     title: str
     description: str
     sortOrder: int
@@ -807,10 +807,10 @@ def build_wellness_response(mood: str) -> WellnessDetailsResponse:
             wellnessTip="Choose calm moments, less pressure and gentle activities today.",
             restTip="Try to reduce screen time tonight and rest a little earlier.",
             actionCards=[
-                WellnessActionCard(emoji="🌿", title="Go outside", description="Spend 10 minutes in fresh air", sortOrder=1),
-                WellnessActionCard(emoji="🧘", title="Breathing exercise", description="Take 5 slow deep breaths", sortOrder=2),
-                WellnessActionCard(emoji="📵", title="Take a break", description="Step away from screens for a while", sortOrder=3),
-                WellnessActionCard(emoji="🎵", title="Relaxing music", description="Listen to something calming", sortOrder=4),
+                WellnessActionCard(imageKey="wellness_go_outside", title="Go outside", description="Spend 10 minutes in fresh air", sortOrder=1),
+                WellnessActionCard(imageKey="wellness_breathing_exercise", title="Breathing exercise", description="Take 5 slow deep breaths", sortOrder=2),
+                WellnessActionCard(imageKey="wellness_take_break", title="Take a break", description="Step away from screens for a while", sortOrder=3),
+                WellnessActionCard(imageKey="wellness_relaxing_music", title="Relaxing music", description="Listen to something calming", sortOrder=4),
             ]
         )
 
@@ -821,10 +821,10 @@ def build_wellness_response(mood: str) -> WellnessDetailsResponse:
             wellnessTip="Keep your day gentler and save your energy where it matters most.",
             restTip="Try to rest earlier tonight and avoid overloading your schedule.",
             actionCards=[
-                WellnessActionCard(emoji="😴", title="Rest", description="Take a short nap or relax", sortOrder=1),
-                WellnessActionCard(emoji="💧", title="Hydrate", description="Drink water to boost energy", sortOrder=2),
-                WellnessActionCard(emoji="🚶", title="Light walk", description="Gentle movement can help", sortOrder=3),
-                WellnessActionCard(emoji="🍎", title="Light snack", description="Eat something light and healthy", sortOrder=4),
+                WellnessActionCard(imageKey="wellness_rest", title="Rest", description="Take a short nap or relax", sortOrder=1),
+                WellnessActionCard(imageKey="wellness_hydrate", title="Hydrate", description="Drink water to boost energy", sortOrder=2),
+                WellnessActionCard(imageKey="wellness_light_walk", title="Light walk", description="Gentle movement can help", sortOrder=3),
+                WellnessActionCard(imageKey="wellness_light_snack", title="Light snack", description="Eat something light and healthy", sortOrder=4),
             ]
         )
 
@@ -835,10 +835,10 @@ def build_wellness_response(mood: str) -> WellnessDetailsResponse:
             wellnessTip="Use your good mood to stay active and do something meaningful today.",
             restTip="End the day with something enjoyable and keep your balance.",
             actionCards=[
-                WellnessActionCard(emoji="🏃", title="Workout", description="Use your energy for activity", sortOrder=1),
-                WellnessActionCard(emoji="🎯", title="Set a goal", description="Try reaching your step goal today", sortOrder=2),
-                WellnessActionCard(emoji="🤝", title="Socialize", description="Share your good mood with others", sortOrder=3),
-                WellnessActionCard(emoji="🌞", title="Go outside", description="Enjoy the day", sortOrder=4),
+                WellnessActionCard(imageKey="wellness_workout", title="Workout", description="Use your energy for activity", sortOrder=1),
+                WellnessActionCard(imageKey="wellness_set_goal", title="Set a goal", description="Try reaching your step goal today", sortOrder=2),
+                WellnessActionCard(imageKey="wellness_socialize", title="Socialize", description="Share your good mood with others", sortOrder=3),
+                WellnessActionCard(imageKey="wellness_go_outside_happy", title="Go outside", description="Enjoy the day", sortOrder=4),
             ]
         )
 
@@ -848,10 +848,10 @@ def build_wellness_response(mood: str) -> WellnessDetailsResponse:
         wellnessTip="Try light movement, small pauses and simple habits that refresh you.",
         restTip="Keep a calm evening routine and give yourself enough rest.",
         actionCards=[
-            WellnessActionCard(emoji="🚶", title="Short walk", description="Take a short walk", sortOrder=1),
-            WellnessActionCard(emoji="🧘", title="Stretch", description="Do a few gentle stretches", sortOrder=2),
-            WellnessActionCard(emoji="📖", title="Take a small break", description="Pause for a calm moment", sortOrder=3),
-            WellnessActionCard(emoji="☕", title="Relax moment", description="Enjoy a quiet and relaxing moment", sortOrder=4),
+            WellnessActionCard(imageKey="wellness_short_walk", title="Short walk", description="Take a short walk", sortOrder=1),
+            WellnessActionCard(imageKey="wellness_stretch", title="Stretch", description="Do a few gentle stretches", sortOrder=2),
+            WellnessActionCard(imageKey="wellness_small_break", title="Take a small break", description="Pause for a calm moment", sortOrder=3),
+            WellnessActionCard(imageKey="wellness_relax_moment", title="Relax moment", description="Enjoy a quiet and relaxing moment", sortOrder=4),
         ]
     )
 

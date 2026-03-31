@@ -44,4 +44,7 @@ public class User {
 
     @Column(nullable = false)
     private Integer goalSteps;
+
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
 }

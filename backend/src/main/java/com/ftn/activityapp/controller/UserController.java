@@ -1,13 +1,13 @@
 package com.ftn.activityapp.controller;
 
-import com.ftn.activityapp.dto.user.LoginUserRequest;
-import com.ftn.activityapp.dto.user.RegisterUserRequest;
-import com.ftn.activityapp.dto.user.UserResponse;
+import com.ftn.activityapp.dto.user.*;
 import com.ftn.activityapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/users")
@@ -32,5 +32,30 @@ public class UserController {
     public ResponseEntity<UserResponse> loginUser(@RequestBody LoginUserRequest request) {
         UserResponse response = userService.loginUser(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(value = "/{userId}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public UserResponse uploadProfileImage(
+            @PathVariable Long userId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        return userService.uploadProfileImage(userId, file);
+    }
+
+    @PutMapping("/{userId}")
+    public UserResponse updateUser(
+            @PathVariable Long userId,
+            @RequestBody UpdateUserRequest request
+    ) {
+        return userService.updateUser(userId, request);
+    }
+
+    @PutMapping("/{userId}/change-password")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable Long userId,
+            @RequestBody ChangePasswordRequest request
+    ) {
+        userService.changePassword(userId, request);
+        return ResponseEntity.ok().build();
     }
 }

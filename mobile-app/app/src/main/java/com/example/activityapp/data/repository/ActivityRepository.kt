@@ -1,12 +1,16 @@
 package com.example.activityapp.data.repository
 
 import com.example.activityapp.data.remote.RetrofitInstance
+import com.example.activityapp.data.remote.RetrofitInstance.api
 import com.example.activityapp.data.remote.dto.ActivityResponse
 import com.example.activityapp.data.remote.dto.CreateActivityRequest
 import com.example.activityapp.data.remote.dto.RecommendationResponse
-import com.example.activityapp.data.remote.dto.RegisterUserRequest
-import com.example.activityapp.data.remote.dto.UserResponse
-import com.example.activityapp.data.remote.dto.LoginUserRequest
+import com.example.activityapp.data.remote.dto.user.ChangePasswordRequest
+import com.example.activityapp.data.remote.dto.user.RegisterUserRequest
+import com.example.activityapp.data.remote.dto.user.UserResponse
+import com.example.activityapp.data.remote.dto.user.LoginUserRequest
+import com.example.activityapp.data.remote.dto.user.UpdateUserRequest
+import okhttp3.MultipartBody
 
 class ActivityRepository {
 
@@ -41,4 +45,16 @@ class ActivityRepository {
     suspend fun getLatestActivity(userId: Long): ActivityResponse {
         return RetrofitInstance.api.getLatestActivity(userId)
     }
+    suspend fun uploadProfileImage(userId: Long, imagePart: MultipartBody.Part): UserResponse {
+        return api.uploadProfileImage(userId, imagePart)
+    }
+
+    suspend fun updateUser(userId: Long, request: UpdateUserRequest): UserResponse {
+        return api.updateUser(userId, request)
+    }
+
+    suspend fun changePassword(userId: Long, request: ChangePasswordRequest) {
+        api.changePassword(userId, request)
+    }
+
 }
