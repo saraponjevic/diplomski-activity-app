@@ -53,9 +53,9 @@ fun MainScaffoldScreen(
                     scope.launch { drawerState.close() }
                     navController.navigate(Screen.FreeTime.route)
                 },
-                onMotivationClick = {
+                onPlannerClick = {
                     scope.launch { drawerState.close() }
-                    navController.navigate(Screen.Motivation.route)
+                    navController.navigate(Screen.Planner.route)
                 },
                 onProfileClick = {
                     scope.launch { drawerState.close() }

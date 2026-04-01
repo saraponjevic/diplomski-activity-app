@@ -24,7 +24,7 @@ fun AppDrawer(
     onNutritionClick: () -> Unit,
     onWellnessClick: () -> Unit,
     onFreeTimeClick: () -> Unit,
-    onMotivationClick: () -> Unit,
+    onPlannerClick: () -> Unit,
     onProfileClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
@@ -50,7 +50,7 @@ fun AppDrawer(
             DrawerItem("Nutrition", onNutritionClick)
             DrawerItem("Wellness", onWellnessClick)
             DrawerItem("Free Time", onFreeTimeClick)
-            DrawerItem("Motivation", onMotivationClick)
+            DrawerItem("Planner", onPlannerClick)
             DrawerItem("Profile", onProfileClick)
 
             Spacer(modifier = Modifier.weight(1f))

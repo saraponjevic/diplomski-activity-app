@@ -3,6 +3,9 @@ package com.example.activityapp.data.remote
 import com.example.activityapp.data.remote.dto.ActivityResponse
 import com.example.activityapp.data.remote.dto.CreateActivityRequest
 import com.example.activityapp.data.remote.dto.RecommendationResponse
+import com.example.activityapp.data.remote.dto.planner.PlannerTaskCreateRequestDto
+import com.example.activityapp.data.remote.dto.planner.PlannerTaskResponseDto
+import com.example.activityapp.data.remote.dto.planner.PlannerTaskUpdateRequestDto
 import com.example.activityapp.data.remote.dto.user.ChangePasswordRequest
 import com.example.activityapp.data.remote.dto.user.RegisterUserRequest
 import com.example.activityapp.data.remote.dto.user.UserResponse
@@ -15,9 +18,12 @@ import com.example.activityapp.data.remote.dto.user.UpdateUserRequest
 import com.example.activityapp.data.remote.dto.wellness.WellnessDetailsResponse
 import com.example.activityapp.data.remote.dto.wellness.WellnessMoodRequest
 import okhttp3.MultipartBody
+import retrofit2.http.DELETE
 import retrofit2.http.Multipart
+import retrofit2.http.PATCH
 import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.Query
 
 interface ApiService {
 
@@ -90,6 +96,47 @@ interface ApiService {
     suspend fun changePassword(
         @Path("userId") userId: Long,
         @Body request: ChangePasswordRequest
+    )
+
+    @POST("api/planner/users/{userId}/tasks")
+    suspend fun createPlannerTask(
+        @Path("userId") userId: Long,
+        @Body request: PlannerTaskCreateRequestDto
+    ): PlannerTaskResponseDto
+
+    @GET("api/planner/users/{userId}/tasks/today")
+    suspend fun getTodayPlannerTasks(
+        @Path("userId") userId: Long
+    ): List<PlannerTaskResponseDto>
+
+    @GET("api/planner/users/{userId}/tasks/by-date")
+    suspend fun getPlannerTasksForDate(
+        @Path("userId") userId: Long,
+        @Query("date") date: String
+    ): List<PlannerTaskResponseDto>
+
+    @GET("api/planner/users/{userId}/tasks/week")
+    suspend fun getPlannerTasksForWeek(
+        @Path("userId") userId: Long,
+        @Query("startDate") startDate: String,
+        @Query("endDate") endDate: String
+    ): List<PlannerTaskResponseDto>
+
+    @PUT("api/planner/tasks/{taskId}")
+    suspend fun updatePlannerTask(
+        @Path("taskId") taskId: Long,
+        @Body request: PlannerTaskUpdateRequestDto
+    ): PlannerTaskResponseDto
+
+    @PATCH("api/planner/tasks/{taskId}/completed")
+    suspend fun updatePlannerTaskCompleted(
+        @Path("taskId") taskId: Long,
+        @Query("completed") completed: Boolean
+    ): PlannerTaskResponseDto
+
+    @DELETE("api/planner/tasks/{taskId}")
+    suspend fun deletePlannerTask(
+        @Path("taskId") taskId: Long
     )
 
 }

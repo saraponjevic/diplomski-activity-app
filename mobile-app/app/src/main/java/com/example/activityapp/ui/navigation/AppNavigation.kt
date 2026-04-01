@@ -13,6 +13,7 @@ import com.example.activityapp.ui.screens.RecommendationDetailsScreen
 import com.example.activityapp.ui.screens.WellnessScreen
 import com.example.activityapp.ui.screens.freetime.FreeTimeScreen
 import com.example.activityapp.ui.screens.nutrition.NutritionScreen
+import com.example.activityapp.ui.screens.planner.PlannerScreen
 
 @Composable
 fun AppNavigation(
@@ -36,17 +37,11 @@ fun AppNavigation(
                     onRecommendationClick = {
                         navController.navigate(Screen.RecommendationDetails.route)
                     },
-                    onNutritionClick = {
-                        navController.navigate(Screen.Nutrition.route)
-                    },
-                    onWellnessClick = {
-                        navController.navigate(Screen.Wellness.route)
-                    },
-                    onFreeTimeClick = {
-                        navController.navigate(Screen.FreeTime.route)
-                    },
                     onMotivationClick = {
                         navController.navigate(Screen.Motivation.route)
+                    },
+                    onWeeklyStatsClick = {
+                        navController.navigate(Screen.WeeklyStats.route)
                     }
                 )
             }
@@ -150,6 +145,16 @@ fun AppNavigation(
                     onBackClick = { navController.popBackStack() },
                     onSaveSuccess = { navController.popBackStack() }
                 )
+            }
+        }
+
+        composable(Screen.Planner.route) {
+            MainScaffoldScreen(
+                title = "Planner",
+                navController = navController,
+                onLogoutClick = onLogoutClick
+            ) {
+                PlannerScreen(userId = userId)
             }
         }
     }
