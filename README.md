@@ -1,9 +1,9 @@
 # Personalized Activity Recommendation App
 
-Diploma project for tracking physical activity and generating personalized recommendations using machine learning.
+Bachelor’s thesis: Activity tracking application with personalized recommendations powered by machine learning.
 
 ## Project structure
 - backend/ - Spring Boot backend
 - ai-service/ - FastAPI recommendation service
-- mobile-ios/ - SwiftUI iOS app
+- mobile-app/ - Android Studio - Kotlin
 - docs/ - documentation and architecture notes
