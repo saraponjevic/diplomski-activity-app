@@ -1,4 +1,4 @@
-# Personalized Activity Recommendation App
+# Personalized Activity Recommendation App - Berrily
 
 Bachelor’s thesis: Activity tracking application with personalized recommendations powered by machine learning.
 
