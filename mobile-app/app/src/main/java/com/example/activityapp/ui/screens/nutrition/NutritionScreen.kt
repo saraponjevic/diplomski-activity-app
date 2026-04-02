@@ -6,16 +6,16 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -43,10 +43,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.activityapp.R
 import com.example.activityapp.data.remote.dto.nutrition.MealSuggestionResponse
+import com.example.activityapp.ui.theme.AvocadoSmoothie
+import com.example.activityapp.ui.theme.BlushBeet
+import com.example.activityapp.ui.theme.OatLatte
+import com.example.activityapp.ui.theme.TextPrimary
+import com.example.activityapp.ui.theme.TextSecondary
+import com.example.activityapp.ui.theme.WhiteSoft
 import com.example.activityapp.ui.viewmodel.DashboardViewModel
 
 @Composable
@@ -76,56 +82,62 @@ fun NutritionScreen(
 
     val selectedMeals = getMealsByType(meals, selectedMealType)
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        item {
-            Text(
-                text = "Nutrition",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                NutritionHeroSection(
+                    nutritionStatus = nutrition?.nutritionStatus ?: "No data"
+                )
+            }
 
-        item {
-            NutritionHighlightsRow(
-                nutritionStatus = nutrition?.nutritionStatus ?: "No data",
-                waterTip = nutrition?.waterIntakeTip ?: "No data",
-                nutritionTip = nutrition?.nutritionTip ?: "No data"
-            )
-        }
+            item {
+                NutritionSecondaryCardsRow(
+                    waterTip = nutrition?.waterIntakeTip ?: "No data",
+                    nutritionTip = nutrition?.nutritionTip ?: "No data"
+                )
+            }
 
-        item {
-            MealTypeTabs(
-                selectedMealType = selectedMealType,
-                onMealTypeSelected = { selectedMealType = it }
-            )
-        }
+            item {
+                MealTypeTabs(
+                    selectedMealType = selectedMealType,
+                    onMealTypeSelected = { selectedMealType = it }
+                )
+            }
 
-        item {
-            Text(
-                text = formatMealType(selectedMealType),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-        }
+            item {
+                Text(
+                    text = formatMealType(selectedMealType),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = TextPrimary
+                )
+            }
 
-        item {
-            if (selectedMeals.isEmpty()) {
-                Text("No suggestions available")
-            } else {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(horizontal = 4.dp)
-                ) {
-                    items(selectedMeals) { meal ->
-                        MealSuggestionCard(
-                            meal = meal,
-                            onClick = { selectedMeal = meal }
-                        )
+            item {
+                if (selectedMeals.isEmpty()) {
+                    Text(
+                        text = "No suggestions available",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextSecondary
+                    )
+                } else {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(horizontal = 4.dp)
+                    ) {
+                        items(selectedMeals) { meal ->
+                            MealSuggestionCard(
+                                meal = meal,
+                                onClick = { selectedMeal = meal }
+                            )
+                        }
                     }
                 }
             }
@@ -134,8 +146,99 @@ fun NutritionScreen(
 }
 
 @Composable
-fun NutritionHighlightsRow(
-    nutritionStatus: String,
+fun NutritionHeroSection(
+    nutritionStatus: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Card(
+            modifier = Modifier.size(92.dp),
+            shape = CircleShape,
+            colors = CardDefaults.cardColors(
+                containerColor = BlushBeet.copy(alpha = 0.22f)
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.jagodaa),
+                    contentDescription = "Nutrition illustration",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier.weight(1f)
+        ) {
+
+            // glavni oblak
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = WhiteSoft
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 18.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+
+
+                    Text(
+                        text = getNutritionStatusMessage(nutritionStatus),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextSecondary
+                    )
+                }
+            }
+
+            Card(
+                modifier = Modifier
+                    .size(20.dp)
+                    .align(Alignment.CenterStart)
+                    .offset(x = (-6).dp, y = 20.dp),
+                shape = CircleShape,
+                colors = CardDefaults.cardColors(
+                    containerColor = WhiteSoft
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {}
+
+            Card(
+                modifier = Modifier
+                    .size(12.dp)
+                    .align(Alignment.CenterStart)
+                    .offset(x = (-12).dp, y = 36.dp),
+                shape = CircleShape,
+                colors = CardDefaults.cardColors(
+                    containerColor = WhiteSoft
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {}
+        }
+    }
+}
+
+@Composable
+fun NutritionSecondaryCardsRow(
     waterTip: String,
     nutritionTip: String
 ) {
@@ -143,13 +246,6 @@ fun NutritionHighlightsRow(
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         contentPadding = PaddingValues(horizontal = 4.dp)
     ) {
-        item {
-            NutritionHighlightCard(
-                title = "Today",
-                text = getNutritionStatusMessage(nutritionStatus)
-            )
-        }
-
         item {
             NutritionHighlightCard(
                 title = "Water intake",
@@ -176,7 +272,10 @@ fun NutritionHighlightCard(
             .width(220.dp)
             .height(150.dp),
         shape = RoundedCornerShape(24.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = AvocadoSmoothie.copy(alpha = 0.35f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier
@@ -187,12 +286,13 @@ fun NutritionHighlightCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                color = TextPrimary
             )
 
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextSecondary
             )
         }
     }
@@ -217,7 +317,8 @@ fun MealTypeTabs(
             Surface(
                 modifier = Modifier.clickable { onMealTypeSelected(mealType) },
                 shape = RoundedCornerShape(50),
-                tonalElevation = if (isSelected) 4.dp else 1.dp,
+                color = if (isSelected) BlushBeet.copy(alpha = 0.85f) else WhiteSoft,
+                tonalElevation = if (isSelected) 3.dp else 0.dp,
                 shadowElevation = if (isSelected) 4.dp else 0.dp
             ) {
                 Box(
@@ -227,7 +328,7 @@ fun MealTypeTabs(
                     Text(
                         text = formatMealType(mealType),
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                        color = if (isSelected) TextPrimary else TextSecondary
                     )
                 }
             }
@@ -250,7 +351,10 @@ fun MealSuggestionCard(
                 .fillMaxWidth()
                 .height(350.dp),
             shape = RoundedCornerShape(30.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            colors = CardDefaults.cardColors(
+                containerColor = AvocadoSmoothie.copy(alpha = 0.25f)
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -261,18 +365,19 @@ fun MealSuggestionCard(
                 Text(
                     text = meal.title ?: "No title",
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                    color = TextPrimary
                 )
 
                 Text(
                     text = meal.description ?: "No description",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary
                 )
 
                 Text(
                     text = "Calories: ${meal.calories ?: 0} kcal",
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold
+                    color = TextPrimary
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -280,7 +385,8 @@ fun MealSuggestionCard(
                 Surface(
                     modifier = Modifier.clickable { onClick() },
                     shape = RoundedCornerShape(22.dp),
-                    tonalElevation = 3.dp,
+                    color = BlushBeet.copy(alpha = 0.9f),
+                    tonalElevation = 0.dp,
                     shadowElevation = 3.dp
                 ) {
                     Box(
@@ -292,7 +398,7 @@ fun MealSuggestionCard(
                         Text(
                             text = "RECIPE",
                             style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold
+                            color = TextPrimary
                         )
                     }
                 }
@@ -305,7 +411,10 @@ fun MealSuggestionCard(
                 .align(Alignment.TopCenter)
                 .offset(x = 34.dp, y = (-62).dp),
             shape = CircleShape,
-            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+            colors = CardDefaults.cardColors(
+                containerColor = WhiteSoft
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -330,105 +439,124 @@ fun MealDetailScreen(
     meal: MealSuggestionResponse,
     onBackClick: () -> Unit
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize()
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 20.dp)
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
-                )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = meal.title ?: "Meal",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = "• ${meal.calories ?: 0} kcal",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Box(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp, vertical = 20.dp)
             ) {
-                Card(
-                    modifier = Modifier
-                        .size(320.dp)
-                        .align(Alignment.TopEnd)
-                        .offset(x = 110.dp, y = 0.dp),
-                    shape = CircleShape,
-                    elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(8.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = getMealImageRes(meal.imageKey)),
-                            contentDescription = meal.title ?: "Meal image",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(CircleShape)
-                        )
-                    }
+                IconButton(onClick = onBackClick) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = TextPrimary
+                    )
                 }
-            }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .offset(y = (-86).dp)
-            ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(34.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = meal.title ?: "Meal",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = TextPrimary
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "• ${meal.calories ?: 0} kcal",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TextSecondary
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(horizontal = 22.dp, vertical = 22.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                    Card(
+                        modifier = Modifier
+                            .size(320.dp)
+                            .align(Alignment.TopEnd)
+                            .offset(x = 110.dp, y = 0.dp),
+                        shape = CircleShape,
+                        colors = CardDefaults.cardColors(
+                            containerColor = AvocadoSmoothie.copy(alpha = 0.28f)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(8.dp)
                         ) {
-                            Box(
+                            Image(
+                                painter = painterResource(id = getMealImageRes(meal.imageKey)),
+                                contentDescription = meal.title ?: "Meal image",
+                                contentScale = ContentScale.Crop,
                                 modifier = Modifier
-                                    .width(52.dp)
-                                    .height(5.dp)
-                                    .clip(RoundedCornerShape(50))
+                                    .fillMaxSize()
+                                    .clip(CircleShape)
                             )
                         }
+                    }
+                }
 
-                        Text(
-                            text = "Recipe",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(y = (-86).dp)
+                ) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(34.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = OatLatte
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 22.dp, vertical = 22.dp),
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(52.dp)
+                                        .height(5.dp)
+                                        .clip(RoundedCornerShape(50))
+                                ) {
+                                    Surface(
+                                        modifier = Modifier.fillMaxSize(),
+                                        color = BlushBeet.copy(alpha = 0.5f)
+                                    ) {}
+                                }
+                            }
 
-                        (meal.recipe ?: emptyList()).forEachIndexed { index, step ->
                             Text(
-                                text = "${index + 1}. $step",
-                                style = MaterialTheme.typography.bodyMedium
+                                text = "Recipe",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = TextPrimary
                             )
+
+                            (meal.recipe ?: emptyList()).forEachIndexed { index, step ->
+                                Text(
+                                    text = "${index + 1}. $step",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = TextSecondary
+                                )
+                            }
                         }
                     }
                 }
@@ -436,6 +564,7 @@ fun MealDetailScreen(
         }
     }
 }
+
 fun formatMealType(mealType: String): String {
     return when (mealType) {
         "BREAKFAST" -> "Breakfast"

@@ -2,6 +2,7 @@ package com.ftn.activityapp.dto;
 
 import com.ftn.activityapp.dto.freetime.FreeTimeResponseDto;
 import com.ftn.activityapp.dto.nutrition.NutritionResponseDto;
+import com.ftn.activityapp.dto.planner.PlannerSuggestionDto;
 import com.ftn.activityapp.dto.wellness.WellnessResponseDto;
 import com.ftn.activityapp.enums.DailyState;
 import com.ftn.activityapp.enums.IntensityLevel;
@@ -11,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,4 +33,6 @@ public class RecommendationResponse {
     private FreeTimeResponseDto freeTime;
     private WellnessResponseDto wellness;
     private MotivationResponseDto motivation;
+
+    private List<PlannerSuggestionDto> plannerSuggestions;
 }

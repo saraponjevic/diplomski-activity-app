@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,9 +30,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -55,20 +56,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.activityapp.data.remote.dto.planner.PlannerSuggestionDto
 import com.example.activityapp.data.remote.dto.planner.PlannerTaskCreateRequestDto
 import com.example.activityapp.data.remote.dto.planner.PlannerTaskResponseDto
 import com.example.activityapp.data.remote.dto.planner.PlannerTaskUpdateRequestDto
+import com.example.activityapp.data.repository.ActivityRepository
 import com.example.activityapp.data.repository.PlannerRepository
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Locale
 
 private val plannerTaskTypes = listOf(
-    "MEETING",
+    "WALK",
+    "EXERCISE",
     "STUDY",
     "WORK",
-    "EXERCISE",
-    "TRAVEL"
+    "TRAVEL",
+    "MEETING",
+    "REST"
 )
 
 @Composable
@@ -81,6 +86,10 @@ fun PlannerScreen(userId: Long) {
     var showAddDialog by remember { mutableStateOf(false) }
     var taskToEdit by remember { mutableStateOf<PlannerTaskResponseDto?>(null) }
 
+    val activityRepository = remember { ActivityRepository() }
+
+    var plannerSuggestions by remember { mutableStateOf<List<PlannerSuggestionDto>>(emptyList()) }
+    var selectedSuggestion by remember { mutableStateOf<PlannerSuggestionDto?>(null) }
 
     fun loadTasks() {
         scope.launch {
@@ -93,11 +102,24 @@ fun PlannerScreen(userId: Long) {
         }
     }
 
+    fun loadPlannerSuggestions() {
+        scope.launch {
+            try {
+                val latestRecommendation = activityRepository.getLatestRecommendation(userId)
+                plannerSuggestions = latestRecommendation.plannerSuggestions
+            } catch (e: Exception) {
+                plannerSuggestions = emptyList()
+            }
+        }
+    }
 
 
     LaunchedEffect(userId) {
         loadTasks()
+        loadPlannerSuggestions()
     }
+
+
 
     Box(
         modifier = Modifier
@@ -125,6 +147,40 @@ fun PlannerScreen(userId: Long) {
             )
 
             Spacer(modifier = Modifier.height(18.dp))
+
+            if (plannerSuggestions.isNotEmpty()) {
+                Text(
+                    text = "Smart suggestions for today",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF3F3535)
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = "These are a few useful things you could add to today’s plan.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF8C7E7E)
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(plannerSuggestions) { suggestion ->
+                        PlannerSuggestionCard(
+                            suggestion = suggestion,
+                            onAddClick = {
+                                selectedSuggestion = suggestion
+                            }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+            }
 
             if (errorMessage.isNotEmpty()) {
                 Card(
@@ -218,6 +274,40 @@ fun PlannerScreen(userId: Long) {
         )
     }
 
+    selectedSuggestion?.let { suggestion ->
+        PlannerTaskDialog(
+            titleText = "Add suggestion to plan",
+            initialTitle = suggestion.title,
+            initialDescription = suggestion.description,
+            initialDate = LocalDate.now().toString(),
+            initialTime = getSuggestedDefaultTime(suggestion.recommendedPartOfDay),
+            initialTaskType = suggestion.taskType,
+            confirmText = "Add",
+            onDismiss = { selectedSuggestion = null },
+            onConfirm = { title, description, date, time, taskType ->
+                scope.launch {
+                    try {
+                        repository.addTask(
+                            userId,
+                            PlannerTaskCreateRequestDto(
+                                title = title,
+                                description = description.ifBlank { null },
+                                date = date,
+                                time = normalizeTimeForRequest(time),
+                                taskType = taskType,
+                                source = "AI"
+                            )
+                        )
+                        selectedSuggestion = null
+                        loadTasks()
+                    } catch (e: Exception) {
+                        errorMessage = e.message ?: "Failed to add AI suggestion"
+                    }
+                }
+            }
+        )
+    }
+
     taskToEdit?.let { task ->
         PlannerTaskDialog(
             titleText = "Edit Task",
@@ -250,6 +340,66 @@ fun PlannerScreen(userId: Long) {
                 }
             }
         )
+    }
+}
+
+@Composable
+fun PlannerSuggestionCard(
+    suggestion: PlannerSuggestionDto,
+    onAddClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.width(260.dp),
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFEFE6FF)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = suggestion.suggestionType.replace("_", " "),
+                style = MaterialTheme.typography.labelMedium,
+                color = Color(0xFF7B61A8),
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = suggestion.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF3D2F4F)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = suggestion.description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF5D516D)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "${suggestion.suggestedDurationMinutes} min • ${suggestion.recommendedPartOfDay}",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF7E738D)
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Button(
+                onClick = onAddClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Add to plan")
+            }
+        }
     }
 }
 
@@ -579,3 +729,14 @@ fun PlannerTaskDialog(
 private fun normalizeTimeForRequest(time: String): String {
     return if (time.length >= 5) time.substring(0, 5) else time
 }
+
+private fun getSuggestedDefaultTime(partOfDay: String): String {
+    return when (partOfDay.uppercase()) {
+        "MORNING" -> "09:00"
+        "AFTERNOON" -> "14:00"
+        "EVENING" -> "18:00"
+        "NIGHT" -> "21:00"
+        else -> "18:00"
+    }
+}
+

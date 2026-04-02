@@ -4,10 +4,13 @@ import com.ftn.activityapp.enums.DailyState;
 import com.ftn.activityapp.enums.IntensityLevel;
 import com.ftn.activityapp.enums.RecommendationType;
 import com.ftn.activityapp.model.nutrition.NutritionRecommendationEntity;
+import com.ftn.activityapp.model.planner.PlannerSuggestionEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "recommendations")
@@ -65,6 +68,9 @@ public class Recommendation {
 
     @Column(length = 500)
     private String motivationMessage;
+
+    @OneToMany(mappedBy = "recommendation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlannerSuggestionEntity> plannerSuggestions = new ArrayList<>();
 
 
 }

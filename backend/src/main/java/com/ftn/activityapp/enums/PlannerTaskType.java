@@ -1,11 +1,11 @@
 package com.ftn.activityapp.enums;
 
 public enum PlannerTaskType {
+    TRAVEL,
+    MEETING,
     WALK,
-    WORKOUT,
-    HYDRATION,
-    STRETCHING,
-    RELAX,
-    CUSTOM,
-    AI_PLAN
+    EXERCISE,
+    STUDY,
+    WORK,
+    REST
 }

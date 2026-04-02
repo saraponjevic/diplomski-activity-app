@@ -40,21 +40,21 @@ public class PlannerTaskService {
     }
 
     public List<PlannerTaskResponseDto> getTasksForToday(Long userId) {
-        return plannerTaskRepository.findByUserIdAndDateOrderByTimeAsc(userId, LocalDate.now())
+        return plannerTaskRepository.findByUser_IdAndDateOrderByTimeAsc(userId, LocalDate.now())
                 .stream()
                 .map(this::mapToDto)
                 .toList();
     }
 
     public List<PlannerTaskResponseDto> getTasksForDate(Long userId, LocalDate date) {
-        return plannerTaskRepository.findByUserIdAndDateOrderByTimeAsc(userId, date)
+        return plannerTaskRepository.findByUser_IdAndDateOrderByTimeAsc(userId, date)
                 .stream()
                 .map(this::mapToDto)
                 .toList();
     }
 
     public List<PlannerTaskResponseDto> getTasksForWeek(Long userId, LocalDate startDate, LocalDate endDate) {
-        return plannerTaskRepository.findByUserIdAndDateBetweenOrderByDateAscTimeAsc(userId, startDate, endDate)
+        return plannerTaskRepository.findByUser_IdAndDateBetweenOrderByDateAscTimeAsc(userId, startDate, endDate)
                 .stream()
                 .map(this::mapToDto)
                 .toList();

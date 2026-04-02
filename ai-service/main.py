@@ -14,6 +14,7 @@ class RecommendationRequest(BaseModel):
     avgLast7Days: float
     daysGoalReachedLast7: int
     goalSteps: int
+    mood: str | None = None
 
 
 class MealType(str, Enum):
@@ -123,6 +124,23 @@ class WellnessDetailsResponse(BaseModel):
 class MotivationRecommendation(BaseModel):
     message: str
 
+class PlannerSuggestionType(str, Enum):
+    MOVEMENT = "MOVEMENT"
+    WELLNESS = "WELLNESS"
+    NUTRITION = "NUTRITION"
+    PRODUCTIVITY = "PRODUCTIVITY"
+    REST = "REST"
+
+
+class PlannerSuggestion(BaseModel):
+    title: str
+    description: str
+    suggestedDurationMinutes: int
+    suggestionType: PlannerSuggestionType
+    recommendedPartOfDay: str
+    taskType: str
+    source: str = "AI"
+
 
 class RecommendationResponse(BaseModel):
     dailyState: str
@@ -135,6 +153,7 @@ class RecommendationResponse(BaseModel):
     freeTime: FreeTimeRecommendation
     wellness: WellnessRecommendation
     motivation: MotivationRecommendation
+    plannerSuggestions: List[PlannerSuggestion]
 
 
 @app.get("/")
@@ -694,7 +713,292 @@ def build_recovery_day_free_time() -> FreeTimeRecommendation:
     )
 
 
-def build_response(recommendation_type: str, daily_state: str) -> RecommendationResponse:
+def planner_suggestion(
+    title: str,
+    description: str,
+    suggested_duration_minutes: int,
+    suggestion_type: PlannerSuggestionType,
+    recommended_part_of_day: str,
+    task_type: str
+) -> PlannerSuggestion:
+    return PlannerSuggestion(
+        title=title,
+        description=description,
+        suggestedDurationMinutes=suggested_duration_minutes,
+        suggestionType=suggestion_type,
+        recommendedPartOfDay=recommended_part_of_day,
+        taskType=task_type,
+        source="AI"
+    )
+
+
+def build_planner_suggestions(
+    daily_state: str,
+    steps_today: int,
+    goal_steps: int,
+    mood: str | None = None
+) -> List[PlannerSuggestion]:
+    suggestions: List[PlannerSuggestion] = []
+
+    goal_progress = steps_today / goal_steps if goal_steps > 0 else 0.0
+
+    if daily_state == "VERY_LOW_ACTIVITY":
+        suggestions.extend([
+            planner_suggestion(
+                "Take a 20-minute walk",
+                "A short walk would be the smartest thing to add today so you do not end the day too inactive.",
+                20,
+                PlannerSuggestionType.MOVEMENT,
+                "EVENING",
+                "WALK"
+            ),
+            planner_suggestion(
+                "Do a 10-minute stretch",
+                "A short stretch can reduce stiffness and help after sitting for a long time.",
+                10,
+                PlannerSuggestionType.WELLNESS,
+                "AFTERNOON",
+                "EXERCISE"
+            ),
+            planner_suggestion(
+                "Prepare a lighter healthy dinner",
+                "Choose a simple balanced meal tonight to support energy without feeling heavy.",
+                30,
+                PlannerSuggestionType.NUTRITION,
+                "EVENING",
+                "WORK"
+            ),
+            planner_suggestion(
+                "Start bedtime routine earlier",
+                "A calmer evening routine can help you recover better for tomorrow.",
+                20,
+                PlannerSuggestionType.REST,
+                "NIGHT",
+                "REST"
+            ),
+        ])
+
+    elif daily_state == "LOW_ACTIVITY":
+        suggestions.extend([
+            planner_suggestion(
+                "Add a short walk",
+                "A 15-minute walk would help you improve today’s activity in a realistic way.",
+                15,
+                PlannerSuggestionType.MOVEMENT,
+                "EVENING",
+                "WALK"
+            ),
+            planner_suggestion(
+                "Take a hydration break",
+                "A small water break is a simple task worth adding to your day plan.",
+                5,
+                PlannerSuggestionType.WELLNESS,
+                "AFTERNOON",
+                "REST"
+            ),
+            planner_suggestion(
+                "Plan tomorrow",
+                "Spend a few minutes organizing tomorrow so the day feels less chaotic.",
+                10,
+                PlannerSuggestionType.PRODUCTIVITY,
+                "EVENING",
+                "STUDY"
+            ),
+            planner_suggestion(
+                "Prepare a healthy snack",
+                "A planned snack can help energy and reduce random eating later.",
+                10,
+                PlannerSuggestionType.NUTRITION,
+                "AFTERNOON",
+                "WORK"
+            ),
+        ])
+
+    elif daily_state == "ON_TRACK":
+        suggestions.extend([
+            planner_suggestion(
+                "Take a brisk walk",
+                "You are doing well today, so this is a good moment to keep your rhythm.",
+                25,
+                PlannerSuggestionType.MOVEMENT,
+                "EVENING",
+                "WALK"
+            ),
+            planner_suggestion(
+                "Do a quick reset stretch",
+                "A short mobility session can help you feel lighter and keep the day balanced.",
+                10,
+                PlannerSuggestionType.WELLNESS,
+                "AFTERNOON",
+                "EXERCISE"
+            ),
+            planner_suggestion(
+                "Plan tomorrow’s priorities",
+                "Use your stable energy to organize the most important things for tomorrow.",
+                10,
+                PlannerSuggestionType.PRODUCTIVITY,
+                "EVENING",
+                "STUDY"
+            ),
+            planner_suggestion(
+                "Prepare a balanced dinner",
+                "A good evening meal would fit well with the progress you made today.",
+                30,
+                PlannerSuggestionType.NUTRITION,
+                "EVENING",
+                "WORK"
+            ),
+        ])
+
+    elif daily_state == "NEAR_GOAL":
+        suggestions.extend([
+            planner_suggestion(
+                "Finish your step goal",
+                "A short final walk is probably enough to help you reach your goal today.",
+                15,
+                PlannerSuggestionType.MOVEMENT,
+                "EVENING",
+                "WALK"
+            ),
+            planner_suggestion(
+                "Do light stretching",
+                "A few minutes of stretching would be a smart add-on after movement.",
+                10,
+                PlannerSuggestionType.WELLNESS,
+                "EVENING",
+                "EXERCISE"
+            ),
+            planner_suggestion(
+                "Set up tomorrow",
+                "Prepare tomorrow’s plan while your momentum is still good.",
+                10,
+                PlannerSuggestionType.PRODUCTIVITY,
+                "NIGHT",
+                "STUDY"
+            ),
+            planner_suggestion(
+                "Keep a calm evening routine",
+                "A peaceful evening helps recovery after a solid day.",
+                20,
+                PlannerSuggestionType.REST,
+                "NIGHT",
+                "REST"
+            ),
+        ])
+
+    elif daily_state == "GOAL_ACHIEVED":
+        suggestions.extend([
+            planner_suggestion(
+                "Do recovery stretching",
+                "You already did well today, so recovery is a smart choice now.",
+                10,
+                PlannerSuggestionType.WELLNESS,
+                "EVENING",
+                "EXERCISE"
+            ),
+            planner_suggestion(
+                "Take a hydration break",
+                "Hydration is a useful follow-up after a successful active day.",
+                5,
+                PlannerSuggestionType.WELLNESS,
+                "AFTERNOON",
+                "REST"
+            ),
+            planner_suggestion(
+                "Prepare tomorrow’s essentials",
+                "Use today’s momentum to make tomorrow easier.",
+                10,
+                PlannerSuggestionType.PRODUCTIVITY,
+                "EVENING",
+                "STUDY"
+            ),
+            planner_suggestion(
+                "Start winding down earlier",
+                "Good sleep will support consistency tomorrow too.",
+                20,
+                PlannerSuggestionType.REST,
+                "NIGHT",
+                "REST"
+            ),
+        ])
+
+    else:  # RECOVERY_DAY / ABOVE_USUAL_ACTIVITY
+        suggestions.extend([
+            planner_suggestion(
+                "Do gentle stretching",
+                "Your body would benefit more from recovery than from extra intensity today.",
+                10,
+                PlannerSuggestionType.WELLNESS,
+                "EVENING",
+                "EXERCISE"
+            ),
+            planner_suggestion(
+                "Take a calm walk",
+                "Choose light movement instead of another demanding activity.",
+                15,
+                PlannerSuggestionType.MOVEMENT,
+                "EVENING",
+                "WALK"
+            ),
+            planner_suggestion(
+                "Hydrate properly",
+                "A hydration reminder fits well on a recovery-focused day.",
+                5,
+                PlannerSuggestionType.WELLNESS,
+                "AFTERNOON",
+                "REST"
+            ),
+            planner_suggestion(
+                "Go to sleep earlier",
+                "Sleep is the most useful recovery task for today.",
+                20,
+                PlannerSuggestionType.REST,
+                "NIGHT",
+                "REST"
+            ),
+        ])
+
+    if mood == "STRESSED":
+        suggestions.insert(0, planner_suggestion(
+            "Take a 5-minute breathing break",
+            "This is a smart small task for today if stress is higher than usual.",
+            5,
+            PlannerSuggestionType.WELLNESS,
+            "AFTERNOON",
+            "REST"
+        ))
+
+    if mood == "TIRED":
+        suggestions.insert(0, planner_suggestion(
+            "Take a short recovery break",
+            "Choose a calm pause today instead of filling every hour with obligations.",
+            15,
+            PlannerSuggestionType.REST,
+            "AFTERNOON",
+            "REST"
+        ))
+
+    if mood == "HAPPY" and goal_progress < 1.0:
+        suggestions.insert(0, planner_suggestion(
+            "Use your energy for a focused walk",
+            "Your mood is good, so this is a great time to complete something useful for yourself.",
+            20,
+            PlannerSuggestionType.MOVEMENT,
+            "EVENING",
+            "WALK"
+        ))
+
+    return suggestions[:5]
+
+
+
+def build_response(
+    recommendation_type: str,
+    daily_state: str,
+    steps_today: int,
+    goal_steps: int,
+    mood: str | None = None
+) -> RecommendationResponse:
     if recommendation_type == "LIGHT_WALK":
         return RecommendationResponse(
             dailyState=daily_state,
@@ -711,7 +1015,13 @@ def build_response(recommendation_type: str, daily_state: str) -> Recommendation
             ),
             motivation=MotivationRecommendation(
                 message="Every step counts. Start small and keep going."
-            )
+            ),
+            plannerSuggestions=build_planner_suggestions(
+            daily_state=daily_state,
+            steps_today=steps_today,
+            goal_steps=goal_steps,
+            mood=mood
+        )
         )
 
     if recommendation_type == "MODERATE_WALK":
@@ -730,7 +1040,13 @@ def build_response(recommendation_type: str, daily_state: str) -> Recommendation
             ),
             motivation=MotivationRecommendation(
                 message="Nice progress today. Keep up the good work."
-            )
+            ),
+            plannerSuggestions=build_planner_suggestions(
+            daily_state=daily_state,
+            steps_today=steps_today,
+            goal_steps=goal_steps,
+            mood=mood
+        )
         )
 
     if recommendation_type == "RECOVERY_DAY":
@@ -749,7 +1065,13 @@ def build_response(recommendation_type: str, daily_state: str) -> Recommendation
             ),
             motivation=MotivationRecommendation(
                 message="You have been active lately. Recovery is also part of progress."
-            )
+            ),
+            plannerSuggestions=build_planner_suggestions(
+            daily_state=daily_state,
+            steps_today=steps_today,
+            goal_steps=goal_steps,
+            mood=mood
+        )
         )
 
     return RecommendationResponse(
@@ -767,6 +1089,12 @@ def build_response(recommendation_type: str, daily_state: str) -> Recommendation
         ),
         motivation=MotivationRecommendation(
             message="You can do this. A short workout today is a great investment in yourself."
+        ),
+        plannerSuggestions=build_planner_suggestions(
+            daily_state=daily_state,
+            steps_today=steps_today,
+            goal_steps=goal_steps,
+            mood=mood
         )
     )
 
@@ -794,7 +1122,13 @@ def recommend(request: RecommendationRequest):
         days_goal_reached_last_7=request.daysGoalReachedLast7
     )
 
-    return build_response(prediction, daily_state)
+    return build_response(
+    recommendation_type=prediction,
+    daily_state=daily_state,
+    steps_today=request.stepsToday,
+    goal_steps=request.goalSteps,
+    mood=request.mood
+)
 
 
 

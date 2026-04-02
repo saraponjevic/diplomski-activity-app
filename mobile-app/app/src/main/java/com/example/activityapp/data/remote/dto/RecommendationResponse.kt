@@ -2,6 +2,7 @@ package com.example.activityapp.data.remote.dto
 
 import com.example.activityapp.data.remote.dto.freetime.FreeTimeResponseDto
 import com.example.activityapp.data.remote.dto.nutrition.NutritionResponse
+import com.example.activityapp.data.remote.dto.planner.PlannerSuggestionDto
 import com.example.activityapp.data.remote.dto.wellness.WellnessResponse
 
 data class RecommendationResponse(
@@ -17,6 +18,7 @@ data class RecommendationResponse(
     val nutrition: NutritionResponse?,
     val freeTime: FreeTimeResponseDto?,
     val wellness: WellnessResponse?,
-    val motivation: MotivationResponse?
+    val motivation: MotivationResponse?,
+    val plannerSuggestions: List<PlannerSuggestionDto> = emptyList()
 
 )

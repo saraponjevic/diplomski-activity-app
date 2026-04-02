@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface PlannerTaskRepository extends JpaRepository<PlannerTask, Long> {
-    List<PlannerTask> findByUserIdOrderByDateAscTimeAsc(Long userId);
-    List<PlannerTask> findByUserIdAndDateOrderByTimeAsc(Long userId, LocalDate date);
-    List<PlannerTask> findByUserIdAndDateBetweenOrderByDateAscTimeAsc(Long userId, LocalDate startDate, LocalDate endDate);
+    List<PlannerTask> findByUser_IdOrderByDateAscTimeAsc(Long userId);
+    List<PlannerTask> findByUser_IdAndDateOrderByTimeAsc(Long userId, LocalDate date);
+    List<PlannerTask> findByUser_IdAndDateBetweenOrderByDateAscTimeAsc(Long userId, LocalDate startDate, LocalDate endDate);
 }

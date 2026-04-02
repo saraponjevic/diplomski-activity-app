@@ -8,6 +8,7 @@ import com.ftn.activityapp.dto.RecommendationResponse;
 import com.ftn.activityapp.dto.freetime.FreeTimeActivityDto;
 import com.ftn.activityapp.dto.freetime.FreeTimeCategoryGroupDto;
 import com.ftn.activityapp.dto.freetime.FreeTimeResponseDto;
+import com.ftn.activityapp.dto.planner.PlannerSuggestionDto;
 import com.ftn.activityapp.enums.FreeTimeCategory;
 import com.ftn.activityapp.enums.IntensityLevel;
 import com.ftn.activityapp.enums.RecommendationType;
@@ -18,6 +19,7 @@ import com.ftn.activityapp.model.Recommendation;
 import com.ftn.activityapp.model.User;
 import com.ftn.activityapp.model.freetime.FreeTimeActivityEntity;
 import com.ftn.activityapp.model.nutrition.NutritionRecommendationEntity;
+import com.ftn.activityapp.model.planner.PlannerSuggestionEntity;
 import com.ftn.activityapp.repository.ActivityRepository;
 import com.ftn.activityapp.repository.RecommendationRepository;
 import com.ftn.activityapp.repository.UserRepository;
@@ -98,6 +100,28 @@ public class RecommendationService {
                 .motivationMessage(aiResponse.getMotivation().getMessage())
                 .build();
 
+
+        List<PlannerSuggestionEntity> plannerSuggestionEntities = new ArrayList<>();
+
+        if (aiResponse.getPlannerSuggestions() != null) {
+            aiResponse.getPlannerSuggestions().forEach(suggestion -> {
+                PlannerSuggestionEntity entity = PlannerSuggestionEntity.builder()
+                        .title(suggestion.getTitle())
+                        .description(suggestion.getDescription())
+                        .suggestedDurationMinutes(suggestion.getSuggestedDurationMinutes())
+                        .suggestionType(suggestion.getSuggestionType())
+                        .recommendedPartOfDay(suggestion.getRecommendedPartOfDay())
+                        .taskType(suggestion.getTaskType())
+                        .source(suggestion.getSource())
+                        .recommendation(recommendation)
+                        .build();
+
+                plannerSuggestionEntities.add(entity);
+            });
+        }
+
+        recommendation.setPlannerSuggestions(plannerSuggestionEntities);
+
         List<FreeTimeActivityEntity> freeTimeActivities = new ArrayList<>();
 
         aiResponse.getFreeTime().getCategoryGroups().forEach(group -> {
@@ -129,6 +153,24 @@ public class RecommendationService {
                 .orElseThrow(() -> new ResourceNotFoundException("No recommendation found for user id: " + userId));
 
         return mapToResponse(recommendation);
+    }
+
+    private List<PlannerSuggestionDto> mapPlannerSuggestions(List<PlannerSuggestionEntity> suggestions) {
+        if (suggestions == null) {
+            return List.of();
+        }
+
+        return suggestions.stream()
+                .map(s -> PlannerSuggestionDto.builder()
+                        .title(s.getTitle())
+                        .description(s.getDescription())
+                        .suggestedDurationMinutes(s.getSuggestedDurationMinutes())
+                        .suggestionType(s.getSuggestionType())
+                        .recommendedPartOfDay(s.getRecommendedPartOfDay())
+                        .taskType(s.getTaskType())
+                        .source(s.getSource())
+                        .build())
+                .toList();
     }
 
     private RecommendationResponse mapToResponse(Recommendation recommendation) {
@@ -178,6 +220,9 @@ public class RecommendationService {
                 .motivation(MotivationResponseDto.builder()
                         .message(recommendation.getMotivationMessage())
                         .build())
+                .plannerSuggestions(
+                        mapPlannerSuggestions(recommendation.getPlannerSuggestions())
+                )
                 .build();
     }
 
@@ -193,4 +238,6 @@ public class RecommendationService {
             case MINDFULNESS -> "free_category_mindfulness";
         };
     }
+
+
 }
