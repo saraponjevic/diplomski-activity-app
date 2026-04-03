@@ -1,36 +1,22 @@
 package com.example.activityapp.ui.screens.wellnesss
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.example.activityapp.ui.viewmodel.DashboardViewModel
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.example.activityapp.R
+import com.example.activityapp.ui.theme.*
+import com.example.activityapp.ui.viewmodel.DashboardViewModel
 
 @Composable
 fun WellnessResultScreen(
@@ -40,7 +26,6 @@ fun WellnessResultScreen(
     onBack: () -> Unit
 ) {
     val wellnessDetails by dashboardViewModel.wellnessDetails.collectAsState()
-    val errorMessage by dashboardViewModel.errorMessage.collectAsState()
 
     LaunchedEffect(selectedMood) {
         dashboardViewModel.loadTodayWellness(userId)
@@ -48,145 +33,224 @@ fun WellnessResultScreen(
 
     val cards = wellnessDetails?.actionCards ?: emptyList()
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = AppBackground
     ) {
-        item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
 
-                Text(
-                    text = "Your Wellness Plan",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-
-        wellnessDetails?.headline?.let { headline ->
+            // TOP BAR
             item {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(18.dp)) {
-                        Text(
-                            text = headline,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null,
+                            tint = TextPrimary
                         )
                     }
-                }
-            }
-        }
 
-        item {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
                     Text(
-                        text = "Wellness tip",
+                        "Wellness plan for you",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = wellnessDetails?.wellnessTip ?: "No data",
-                        style = MaterialTheme.typography.bodyLarge
+                        color = TextPrimary
                     )
                 }
             }
-        }
 
-        item {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Text(
-                        text = "Rest tip",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = wellnessDetails?.restTip ?: "No data",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+            wellnessDetails?.headline?.let {
+                item {
+                    HeroWellnessCard(it)
                 }
-            }
-        }
-
-        if (cards.isNotEmpty()) {
-            item {
-                Text(
-                    text = "Small actions for today",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
             }
 
             item {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    items(cards) { card ->
-                        Card(
-                            modifier = Modifier
-                                .width(230.dp)
-                                .height(220.dp) // sve iste
-                        ) {
-                            Column(
-                                modifier = Modifier.fillMaxSize(),
-                                verticalArrangement = Arrangement.SpaceBetween
-                            ) {
+                    PatternCard(
+                        title = "Wellness tip",
+                        text = wellnessDetails?.wellnessTip ?: "",
+                        image = R.drawable.kartica1,
+                        background = PeachProtein,
+                        modifier = Modifier.weight(1f)
+                    )
 
-                                Image(
-                                    painter = painterResource(id = getWellnessImageRes(card.imageKey)),
-                                    contentDescription = card.title,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(120.dp),
-                                    contentScale = ContentScale.Crop
-                                )
+                    PatternCard(
+                        title = "Rest tip",
+                        text = wellnessDetails?.restTip ?: "",
+                        image = R.drawable.kartica2,
+                        background = OatLatte,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
 
-                                Column(
-                                    modifier = Modifier
-                                        .padding(12.dp)
-                                        .weight(1f),
-                                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    Text(
-                                        text = card.title ?: "",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        maxLines = 1
-                                    )
+            if (cards.isNotEmpty()) {
 
-                                    Text(
-                                        text = card.description ?: "",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        maxLines = 2
-                                    )
-                                }
-                            }
+                item {
+                    Text(
+                        "Small actions for today",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = TextPrimary
+                    )
+                }
+
+                item {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        contentPadding = PaddingValues(horizontal = 2.dp)
+                    ) {
+                        items(cards) { card ->
+                            WellnessActionCardItem(card)
                         }
                     }
                 }
             }
         }
+    }
+}
 
-        errorMessage?.let {
-            item {
-                Text("Error: $it")
+
+@Composable
+fun HeroWellnessCard(text: String) {
+    Card(
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = WhiteSoft),
+        elevation = CardDefaults.cardElevation(0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "Hello!",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TextPrimary,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            Image(
+                painter = painterResource(id = R.drawable.jagodaa), // 👈 ubaci neku ilustraciju
+                contentDescription = null,
+                modifier = Modifier.size(90.dp),
+                contentScale = ContentScale.Fit
+            )
+        }
+    }
+}
+
+@Composable
+fun PatternCard(
+    title: String,
+    text: String,
+    image: Int,
+    background: androidx.compose.ui.graphics.Color,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .aspectRatio(1f),
+        shape = RoundedCornerShape(26.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = background.copy(alpha = 0.6f)
+        ),
+        elevation = CardDefaults.cardElevation(0.dp)
+    ) {
+        Box {
+            Image(
+                painter = painterResource(id = image),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(160.dp)
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 20.dp, y = 20.dp),
+                contentScale = ContentScale.Fit,
+                alpha = 0.25f
+            )
+
+            Column(
+                modifier = Modifier.padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TextPrimary,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Text(
+                    text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun WellnessActionCardItem(
+    card: com.example.activityapp.data.remote.dto.wellness.WellnessActionCardResponse
+) {
+    Card(
+        modifier = Modifier
+            .width(220.dp)
+            .height(240.dp),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = AvocadoSmoothie.copy(alpha = 0.45f)
+        ),
+        elevation = CardDefaults.cardElevation(0.dp)
+    ) {
+        Column {
+
+            Image(
+                painter = painterResource(id = getWellnessImageRes(card.imageKey)),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp)
+                    .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)),
+                contentScale = ContentScale.Crop
+            )
+
+            Column(
+                modifier = Modifier.padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    card.title ?: "",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TextPrimary
+                )
+
+                Text(
+                    card.description ?: "",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary,
+                    maxLines = 2
+                )
             }
         }
     }

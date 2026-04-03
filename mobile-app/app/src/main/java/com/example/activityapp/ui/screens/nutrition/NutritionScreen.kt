@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -58,7 +59,8 @@ import com.example.activityapp.ui.viewmodel.DashboardViewModel
 @Composable
 fun NutritionScreen(
     userId: Long,
-    dashboardViewModel: DashboardViewModel = viewModel()
+    dashboardViewModel: DashboardViewModel = viewModel(),
+    onBack: () -> Unit
 ) {
     val recommendation by dashboardViewModel.latestRecommendation.collectAsState()
 
@@ -87,11 +89,32 @@ fun NutritionScreen(
         color = MaterialTheme.colorScheme.background
     ) {
         LazyColumn(
+
+
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 20.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
+            item {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = null,
+                            tint = TextPrimary
+                        )
+                    }
+
+                    Text(
+                        "Nutrition plan for you",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextPrimary
+                    )
+                }
+            }
+
             item {
                 NutritionHeroSection(
                     nutritionStatus = nutrition?.nutritionStatus ?: "No data"
@@ -183,7 +206,6 @@ fun NutritionHeroSection(
             modifier = Modifier.weight(1f)
         ) {
 
-            // glavni oblak
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -267,33 +289,56 @@ fun NutritionHighlightCard(
     title: String,
     text: String
 ) {
+    val backgroundImage =
+        if (title == "Water intake") R.drawable.jagoda_voda
+        else R.drawable.jagoda
+
+    val backgroundColor =
+        if (title == "Water intake") AvocadoSmoothie
+        else OatLatte
+
     Card(
         modifier = Modifier
             .width(220.dp)
             .height(150.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = AvocadoSmoothie.copy(alpha = 0.35f)
+            containerColor = backgroundColor.copy(alpha = 0.6f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary
+        Box {
+
+            Image(
+                painter = painterResource(id = backgroundImage),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(120.dp)
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 20.dp, y = 20.dp),
+                contentScale = ContentScale.Fit,
+                alpha = 0.25f
             )
 
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TextPrimary
+                )
+
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary
+                )
+            }
         }
     }
 }
@@ -453,7 +498,7 @@ fun MealDetailScreen(
             ) {
                 IconButton(onClick = onBackClick) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
                         tint = TextPrimary
                     )

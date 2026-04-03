@@ -63,7 +63,10 @@ fun AppNavigation(
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
-                NutritionScreen(userId = userId)
+                NutritionScreen(
+                    userId = userId,
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
 
