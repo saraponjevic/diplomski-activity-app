@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,10 +22,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
@@ -52,6 +53,15 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.activityapp.data.remote.dto.user.UserResponse
 import com.example.activityapp.data.repository.ActivityRepository
+import com.example.activityapp.ui.theme.AppBackground
+import com.example.activityapp.ui.theme.AvocadoSmoothie
+import com.example.activityapp.ui.theme.BlushBeet
+import com.example.activityapp.ui.theme.CardBackground
+import com.example.activityapp.ui.theme.Cream
+import com.example.activityapp.ui.theme.PeachProtein
+import com.example.activityapp.ui.theme.SavorySage
+import com.example.activityapp.ui.theme.TextPrimary
+import com.example.activityapp.ui.theme.TextSecondary
 import com.example.activityapp.util.createImagePartFromUri
 import kotlinx.coroutines.launch
 
@@ -59,7 +69,8 @@ import kotlinx.coroutines.launch
 fun ProfileScreen(
     userId: Long,
     onEditProfileClick: () -> Unit,
-    onChangePasswordClick: () -> Unit
+    onChangePasswordClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     val repository = ActivityRepository()
     val context = LocalContext.current
@@ -99,7 +110,7 @@ fun ProfileScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = AppBackground
     ) {
         when {
             errorMessage.isNotEmpty() && user == null -> {
@@ -109,7 +120,8 @@ fun ProfileScreen(
                 ) {
                     Text(
                         text = "Error: $errorMessage",
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
             }
@@ -119,7 +131,7 @@ fun ProfileScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = SavorySage)
                 }
             }
 
@@ -130,21 +142,47 @@ fun ProfileScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 20.dp, vertical = 24.dp),
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "Profile",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(Cream)
+                                .clickable { onBackClick() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBackIosNew,
+                                contentDescription = "Back",
+                                tint = SavorySage,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Text(
+                            text = "Profile",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = TextPrimary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(18.dp))
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(28.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                        colors = CardDefaults.cardColors(containerColor = CardBackground),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
                         Column(
                             modifier = Modifier
@@ -164,14 +202,14 @@ fun ProfileScreen(
                                         imagePickerLauncher.launch(arrayOf("image/*"))
                                     },
                                     modifier = Modifier
-                                        .size(36.dp)
+                                        .size(38.dp)
                                         .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.primary)
+                                        .background(BlushBeet)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Edit,
                                         contentDescription = "Change photo",
-                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        tint = Cream,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -181,8 +219,9 @@ fun ProfileScreen(
 
                             Text(
                                 text = "${currentUser.firstName} ${currentUser.lastName}",
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
                             )
 
                             Spacer(modifier = Modifier.height(6.dp))
@@ -192,54 +231,27 @@ fun ProfileScreen(
                                     imageVector = Icons.Default.Email,
                                     contentDescription = null,
                                     modifier = Modifier.size(18.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = TextSecondary
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = currentUser.email,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = TextSecondary
                                 )
                             }
 
                             if (uploadingImage) {
                                 Spacer(modifier = Modifier.height(14.dp))
-                                CircularProgressIndicator(modifier = Modifier.size(22.dp))
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(22.dp),
+                                    color = SavorySage
+                                )
                             }
                         }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(22.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(20.dp)
-                        ) {
-                            Text(
-                                text = "Activity & goal",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(modifier = Modifier.height(14.dp))
-
-                            InfoRow(
-                                label = "Activity",
-                                value = formatActivityLevel(currentUser.activityLevel)
-                            )
-
-                            InfoRow(
-                                label = "Goal",
-                                value = formatGoal(currentUser.goal)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
 
                     ProfileMenuCard(
                         title = "Edit profile",
@@ -260,7 +272,8 @@ fun ProfileScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(24.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        colors = CardDefaults.cardColors(containerColor = PeachProtein),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column(
                             modifier = Modifier.padding(20.dp)
@@ -268,7 +281,8 @@ fun ProfileScreen(
                             Text(
                                 text = "Basic details",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
                             )
 
                             Spacer(modifier = Modifier.height(14.dp))
@@ -279,11 +293,46 @@ fun ProfileScreen(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(22.dp),
+                        colors = CardDefaults.cardColors(containerColor = PeachProtein),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp)
+                        ) {
+                            Text(
+                                text = "Activity & goal",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+
+                            Spacer(modifier = Modifier.height(14.dp))
+
+                            InfoRow(
+                                label = "Activity",
+                                value = formatActivityLevel(currentUser.activityLevel)
+                            )
+
+                            InfoRow(
+                                label = "Goal",
+                                value = formatGoal(currentUser.goal)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
                     if (errorMessage.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = errorMessage,
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
@@ -302,7 +351,8 @@ private fun ProfileAvatar(profileImageUrl: String?) {
             contentDescription = "Profile image",
             modifier = Modifier
                 .size(120.dp)
-                .clip(CircleShape),
+                .clip(CircleShape)
+                .border(3.dp, AvocadoSmoothie, CircleShape),
             contentScale = ContentScale.Crop
         )
     } else {
@@ -310,14 +360,15 @@ private fun ProfileAvatar(profileImageUrl: String?) {
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(Cream)
+                .border(3.dp, AvocadoSmoothie, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = "Default profile image",
                 modifier = Modifier.size(56.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                tint = SavorySage
             )
         }
     }
@@ -336,7 +387,8 @@ private fun ProfileMenuCard(
             .padding(vertical = 6.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(22.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -348,13 +400,13 @@ private fun ProfileMenuCard(
                 modifier = Modifier
                     .size(42.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .background(Cream),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = BlushBeet
                 )
             }
 
@@ -364,19 +416,21 @@ private fun ProfileMenuCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextPrimary
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = TextSecondary
                 )
             }
 
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = null
+                contentDescription = null,
+                tint = SavorySage
             )
         }
     }
@@ -392,11 +446,14 @@ private fun BasicInfoRow(label: String, value: String) {
     ) {
         Text(
             text = label,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = TextSecondary,
+            style = MaterialTheme.typography.bodyMedium
         )
         Text(
             text = value,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            color = TextPrimary,
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }
@@ -411,11 +468,14 @@ private fun InfoRow(label: String, value: String) {
     ) {
         Text(
             text = label,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = TextSecondary,
+            style = MaterialTheme.typography.bodyMedium
         )
         Text(
             text = value,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            color = TextPrimary,
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }

@@ -11,11 +11,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,6 +33,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.activityapp.data.remote.dto.user.ChangePasswordRequest
 import com.example.activityapp.data.repository.ActivityRepository
+import com.example.activityapp.ui.theme.AppBackground
+import com.example.activityapp.ui.theme.BlushBeet
+import com.example.activityapp.ui.theme.CardBackground
+import com.example.activityapp.ui.theme.Cream
+import com.example.activityapp.ui.theme.SavorySage
+import com.example.activityapp.ui.theme.TextPrimary
+import com.example.activityapp.ui.theme.TextSecondary
 import kotlinx.coroutines.launch
 
 @Composable
@@ -51,7 +60,7 @@ fun ChangePasswordScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = AppBackground
     ) {
         Column(
             modifier = Modifier
@@ -63,7 +72,8 @@ fun ChangePasswordScreen(
             Text(
                 text = "Change password",
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -71,37 +81,29 @@ fun ChangePasswordScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                colors = CardDefaults.cardColors(containerColor = CardBackground),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(18.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    OutlinedTextField(
+                    PasswordField(
                         value = currentPassword,
                         onValueChange = { currentPassword = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Current password") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true
+                        label = "Current password"
                     )
 
-                    OutlinedTextField(
+                    PasswordField(
                         value = newPassword,
                         onValueChange = { newPassword = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("New password") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true
+                        label = "New password"
                     )
 
-                    OutlinedTextField(
+                    PasswordField(
                         value = confirmPassword,
                         onValueChange = { confirmPassword = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Confirm new password") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true
+                        label = "Confirm new password"
                     )
                 }
             }
@@ -147,14 +149,21 @@ fun ChangePasswordScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .height(54.dp),
                 shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = BlushBeet,
+                    contentColor = Cream
+                ),
                 enabled = !saving
             ) {
                 if (saving) {
-                    CircularProgressIndicator(modifier = Modifier.height(22.dp))
+                    CircularProgressIndicator(color = Cream)
                 } else {
-                    Text("Save password")
+                    Text(
+                        text = "Save password",
+                        style = MaterialTheme.typography.labelLarge
+                    )
                 }
             }
 
@@ -162,16 +171,56 @@ fun ChangePasswordScreen(
                 onClick = onBackClick,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Back")
+                Text(
+                    text = "Back",
+                    color = SavorySage,
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
 
             if (message.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = message,
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
     }
+}
+
+@Composable
+private fun PasswordField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier.fillMaxWidth(),
+        label = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        visualTransformation = PasswordVisualTransformation(),
+        singleLine = true,
+        shape = RoundedCornerShape(16.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Cream,
+            unfocusedContainerColor = Cream,
+            disabledContainerColor = Cream,
+            focusedBorderColor = BlushBeet,
+            unfocusedBorderColor = SavorySage.copy(alpha = 0.35f),
+            focusedLabelColor = BlushBeet,
+            unfocusedLabelColor = TextSecondary,
+            focusedTextColor = TextPrimary,
+            unfocusedTextColor = TextPrimary,
+            cursorColor = BlushBeet
+        ),
+        textStyle = MaterialTheme.typography.bodyLarge
+    )
 }

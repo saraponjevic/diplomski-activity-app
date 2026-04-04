@@ -107,7 +107,7 @@ fun DrawerItem(
             imageVector = icon,
             contentDescription = title,
             tint = TextSecondary,
-            modifier = Modifier.size(20.dp) // 👈 male, elegantne ikonice
+            modifier = Modifier.size(20.dp)
         )
 
         Spacer(modifier = Modifier.width(12.dp))

@@ -21,6 +21,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.activityapp.data.remote.dto.freetime.FreeTimeActivityDto
+import com.example.activityapp.ui.theme.AvocadoSmoothie
+import com.example.activityapp.ui.theme.BlushBeet
+import com.example.activityapp.ui.theme.TextPrimary
+import com.example.activityapp.ui.theme.TextSecondary
+import com.example.activityapp.ui.theme.WhiteSoft
 
 @Composable
 fun FreeTimeActivityCard(
@@ -31,11 +36,16 @@ fun FreeTimeActivityCard(
         modifier = modifier
             .width(250.dp)
             .height(290.dp),
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = WhiteSoft
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .background(WhiteSoft)
         ) {
             Box(
                 modifier = Modifier
@@ -52,7 +62,7 @@ fun FreeTimeActivityCard(
                     contentDescription = activity.title,
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+                        .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
                     contentScale = ContentScale.Crop
                 )
 
@@ -63,7 +73,7 @@ fun FreeTimeActivityCard(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
                                     Color.Transparent,
-                                    Color(0x22000000)
+                                    Color(0x16000000)
                                 )
                             )
                         )
@@ -78,7 +88,8 @@ fun FreeTimeActivityCard(
                 Text(
                     text = activity.title,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -88,6 +99,7 @@ fun FreeTimeActivityCard(
                 Text(
                     text = activity.description,
                     style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -99,12 +111,14 @@ fun FreeTimeActivityCard(
                 ) {
                     Surface(
                         shape = RoundedCornerShape(50),
-                        tonalElevation = 2.dp
+                        color = BlushBeet.copy(alpha = 0.35f)
                     ) {
                         Text(
                             text = getIntensityLabel(activity.intensity),
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                            style = MaterialTheme.typography.labelMedium
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextPrimary,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -113,7 +127,9 @@ fun FreeTimeActivityCard(
 
                 Text(
                     text = "Duration: ${activity.durationMinutes} min",
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = AvocadoSmoothie,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }

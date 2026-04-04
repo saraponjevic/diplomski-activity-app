@@ -1,47 +1,22 @@
 package com.example.activityapp.ui.screens.planner
 
-import android.app.TimePickerDialog
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.activityapp.data.remote.dto.planner.PlannerSuggestionDto
@@ -62,9 +36,28 @@ import com.example.activityapp.data.remote.dto.planner.PlannerTaskResponseDto
 import com.example.activityapp.data.remote.dto.planner.PlannerTaskUpdateRequestDto
 import com.example.activityapp.data.repository.ActivityRepository
 import com.example.activityapp.data.repository.PlannerRepository
+import com.example.activityapp.ui.theme.AppBackground
+import com.example.activityapp.ui.theme.AvocadoSmoothie
+import com.example.activityapp.ui.theme.BlushBeet
+import com.example.activityapp.ui.theme.CardBackground
+import com.example.activityapp.ui.theme.PeachProtein
+import com.example.activityapp.ui.theme.SavorySage
+import com.example.activityapp.ui.theme.TextPrimary
+import com.example.activityapp.ui.theme.TextSecondary
+import com.example.activityapp.ui.theme.WhiteSoft
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.foundation.Image
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.example.activityapp.R
+
+
 
 private val plannerTaskTypes = listOf(
     "WALK",
@@ -77,19 +70,28 @@ private val plannerTaskTypes = listOf(
 )
 
 @Composable
-fun PlannerScreen(userId: Long) {
+fun PlannerScreen(userId: Long, onBack: () -> Unit) {
     val repository = remember { PlannerRepository() }
     val scope = rememberCoroutineScope()
+    val activityRepository = remember { ActivityRepository() }
 
     var tasks by remember { mutableStateOf<List<PlannerTaskResponseDto>>(emptyList()) }
     var errorMessage by remember { mutableStateOf("") }
-    var showAddDialog by remember { mutableStateOf(false) }
-    var taskToEdit by remember { mutableStateOf<PlannerTaskResponseDto?>(null) }
 
-    val activityRepository = remember { ActivityRepository() }
+    var showAddScreen by remember { mutableStateOf(false) }
+    var taskToEdit by remember { mutableStateOf<PlannerTaskResponseDto?>(null) }
 
     var plannerSuggestions by remember { mutableStateOf<List<PlannerSuggestionDto>>(emptyList()) }
     var selectedSuggestion by remember { mutableStateOf<PlannerSuggestionDto?>(null) }
+
+    var addScreenTitle by remember { mutableStateOf("Add Task") }
+    var addScreenButtonText by remember { mutableStateOf("Save") }
+    var addInitialTitle by remember { mutableStateOf("") }
+    var addInitialDescription by remember { mutableStateOf("") }
+    var addInitialHour by remember { mutableStateOf(11) }
+    var addInitialMinute by remember { mutableStateOf(0) }
+    var addInitialTaskType by remember { mutableStateOf("WORK") }
+    var isEditMode by remember { mutableStateOf(false) }
 
     fun loadTasks() {
         scope.launch {
@@ -113,124 +115,288 @@ fun PlannerScreen(userId: Long) {
         }
     }
 
-
     LaunchedEffect(userId) {
         loadTasks()
         loadPlannerSuggestions()
     }
 
+    if (showAddScreen) {
+        AddTaskBottomSheet(
+            onDismiss = {
+                showAddScreen = false
+                selectedSuggestion = null
+                taskToEdit = null
+                isEditMode = false
+            },
+            screenTitle = addScreenTitle,
+            saveButtonText = addScreenButtonText,
+            initialTitle = addInitialTitle,
+            initialDescription = addInitialDescription,
+            initialHour = addInitialHour,
+            initialMinute = addInitialMinute,
+            initialTaskType = addInitialTaskType,
+            onSave = { title, description, hour, minute, taskType ->
+                scope.launch {
+                    try {
+                        if (isEditMode && taskToEdit != null) {
+                            repository.updateTask(
+                                taskToEdit!!.id,
+                                PlannerTaskUpdateRequestDto(
+                                    title = title,
+                                    description = description.ifBlank { null },
+                                    date = taskToEdit!!.date,
+                                    time = String.format(
+                                        Locale.getDefault(),
+                                        "%02d:%02d",
+                                        hour,
+                                        minute
+                                    ),
+                                    taskType = taskType,
+                                    completed = taskToEdit!!.completed
+                                )
+                            )
+                        } else {
+                            repository.addTask(
+                                userId,
+                                PlannerTaskCreateRequestDto(
+                                    title = title,
+                                    description = description.ifBlank { null },
+                                    date = LocalDate.now().toString(),
+                                    time = String.format(
+                                        Locale.getDefault(),
+                                        "%02d:%02d",
+                                        hour,
+                                        minute
+                                    ),
+                                    taskType = taskType,
+                                    source = if (selectedSuggestion != null) "AI" else "MANUAL"
+                                )
+                            )
+                        }
 
+                        showAddScreen = false
+                        selectedSuggestion = null
+                        taskToEdit = null
+                        isEditMode = false
+                        loadTasks()
+                    } catch (e: Exception) {
+                        errorMessage = if (isEditMode) {
+                            e.message ?: "Failed to update task"
+                        } else {
+                            e.message ?: "Failed to save task"
+                        }
+                    }
+                }
+            }
+        )
+        return
+    }
+
+    val today = LocalDate.now()
+    val startOfWeek = today.with(DayOfWeek.MONDAY)
+    val weekDays = (0..6).map { startOfWeek.plusDays(it.toLong()) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFFF7F8))
+            .background(AppBackground)
     ) {
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 14.dp)
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            Text(
-                text = "Daily Task",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF2F2A2A)
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = "Today • ${LocalDate.now()}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF8C7E7E)
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            if (plannerSuggestions.isNotEmpty()) {
-                Text(
-                    text = "Smart suggestions for today",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF3F3535)
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    text = "These are a few useful things you could add to today’s plan.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF8C7E7E)
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+            item {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    items(plannerSuggestions) { suggestion ->
-                        PlannerSuggestionCard(
-                            suggestion = suggestion,
-                            onAddClick = {
-                                selectedSuggestion = suggestion
-                            }
+                    IconButton(
+                        onClick = onBack,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Back",
+                            tint = TextPrimary
                         )
                     }
-                }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        text = "Daily plan",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextPrimary
+                    )
+                }
+            }
+
+            item {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(weekDays) { date ->
+                        val isToday = date == today
+
+                        Card(
+                            shape = RoundedCornerShape(18.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isToday) AvocadoSmoothie else WhiteSoft
+                            ),
+                            border = if (isToday) null else BorderStroke(1.dp, BlushBeet.copy(alpha = 0.35f))
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .width(56.dp)
+                                    .padding(vertical = 10.dp)
+                            ) {
+                                Text(
+                                    text = date.dayOfMonth.toString(),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = if (isToday) WhiteSoft else TextPrimary,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+
+                                Spacer(modifier = Modifier.height(2.dp))
+
+                                Text(
+                                    text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (isToday) WhiteSoft.copy(alpha = 0.92f) else TextSecondary
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (plannerSuggestions.isNotEmpty()) {
+                item {
+                    Column {
+                        Text(
+                            text = "Suggestions for today",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = TextPrimary
+                        )
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Text(
+                            text = "These are a few useful things you could add to today’s plan.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextSecondary
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(plannerSuggestions) { suggestion ->
+                                PlannerSuggestionCard(
+                                    suggestion = suggestion,
+                                    tasks = tasks,
+                                    onAddClick = {
+                                        selectedSuggestion = suggestion
+                                        taskToEdit = null
+                                        isEditMode = false
+                                        addScreenTitle = "Add suggestion to plan"
+                                        addScreenButtonText = "Save"
+                                        addInitialTitle = suggestion.title
+                                        addInitialDescription = suggestion.description
+                                        addInitialTaskType = suggestion.taskType
+
+                                        val suggestedTime = getSuggestedDefaultTime(suggestion.recommendedPartOfDay)
+                                        addInitialHour = suggestedTime.substringBefore(":").toIntOrNull() ?: 18
+                                        addInitialMinute = suggestedTime.substringAfter(":").toIntOrNull() ?: 0
+
+                                        showAddScreen = true
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
             if (errorMessage.isNotEmpty()) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFE2E2)),
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Error: $errorMessage",
-                        color = Color(0xFF9B2C2C),
-                        modifier = Modifier.padding(12.dp)
-                    )
+                item {
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = PeachProtein.copy(alpha = 0.65f)
+                        ),
+                        shape = RoundedCornerShape(18.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Error: $errorMessage",
+                            color = TextPrimary,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(14.dp)
+                        )
+                    }
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
             }
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                items(tasks) { task ->
-                    PlannerTaskStyledCard(
-                        task = task,
-                        onCheckedChange = { checked ->
-                            scope.launch {
-                                repository.markCompleted(task.id, checked)
-                                loadTasks()
-                            }
-                        },
-                        onDeleteClick = {
-                            scope.launch {
-                                repository.deleteTask(task.id)
-                                loadTasks()
-                            }
-                        },
-                        onEditClick = {
-                            taskToEdit = task
+            items(tasks) { task ->
+                PlannerTaskStyledCard(
+                    task = task,
+                    onCheckedChange = { checked ->
+                        scope.launch {
+                            repository.markCompleted(task.id, checked)
+                            loadTasks()
                         }
-                    )
-                }
+                    },
+                    onDeleteClick = {
+                        scope.launch {
+                            repository.deleteTask(task.id)
+                            loadTasks()
+                        }
+                    },
+                    onEditClick = {
+                        taskToEdit = task
+                        selectedSuggestion = null
+                        isEditMode = true
+                        addScreenTitle = "Edit Task"
+                        addScreenButtonText = "Update"
+                        addInitialTitle = task.title
+                        addInitialDescription = task.description ?: ""
+                        addInitialTaskType = task.taskType
+                        addInitialHour = task.time.substringBefore(":").toIntOrNull() ?: 18
+                        addInitialMinute = task.time.substringAfter(":").toIntOrNull() ?: 0
+                        showAddScreen = true
+                    }
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(90.dp))
             }
         }
 
         FloatingActionButton(
-            onClick = { showAddDialog = true },
+            onClick = {
+                isEditMode = false
+                selectedSuggestion = null
+                taskToEdit = null
+                addScreenTitle = "Add Task"
+                addScreenButtonText = "Save"
+                addInitialTitle = ""
+                addInitialDescription = ""
+                addInitialHour = 11
+                addInitialMinute = 0
+                addInitialTaskType = "WORK"
+                showAddScreen = true
+            },
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 22.dp),
-            containerColor = Color(0xFFE78A8A),
-            contentColor = Color.White,
+                .align(Alignment.BottomEnd)
+                .padding(end = 20.dp, bottom = 24.dp),
+            containerColor = BlushBeet,
+            contentColor = WhiteSoft,
             shape = CircleShape
         ) {
             Icon(
@@ -239,130 +405,38 @@ fun PlannerScreen(userId: Long) {
             )
         }
     }
-
-    if (showAddDialog) {
-        PlannerTaskDialog(
-            titleText = "Create New Task",
-            initialTitle = "",
-            initialDescription = "",
-            initialDate = LocalDate.now().toString(),
-            initialTime = "18:00",
-            initialTaskType = "MEETING",
-            confirmText = "Save",
-            onDismiss = { showAddDialog = false },
-            onConfirm = { title, description, date, time, taskType ->
-                scope.launch {
-                    try {
-                        repository.addTask(
-                            userId,
-                            PlannerTaskCreateRequestDto(
-                                title = title,
-                                description = description.ifBlank { null },
-                                date = date,
-                                time = time,
-                                taskType = taskType,
-                                source = "MANUAL"
-                            )
-                        )
-                        showAddDialog = false
-                        loadTasks()
-                    } catch (e: Exception) {
-                        errorMessage = e.message ?: "Failed to add task"
-                    }
-                }
-            }
-        )
-    }
-
-    selectedSuggestion?.let { suggestion ->
-        PlannerTaskDialog(
-            titleText = "Add suggestion to plan",
-            initialTitle = suggestion.title,
-            initialDescription = suggestion.description,
-            initialDate = LocalDate.now().toString(),
-            initialTime = getSuggestedDefaultTime(suggestion.recommendedPartOfDay),
-            initialTaskType = suggestion.taskType,
-            confirmText = "Add",
-            onDismiss = { selectedSuggestion = null },
-            onConfirm = { title, description, date, time, taskType ->
-                scope.launch {
-                    try {
-                        repository.addTask(
-                            userId,
-                            PlannerTaskCreateRequestDto(
-                                title = title,
-                                description = description.ifBlank { null },
-                                date = date,
-                                time = normalizeTimeForRequest(time),
-                                taskType = taskType,
-                                source = "AI"
-                            )
-                        )
-                        selectedSuggestion = null
-                        loadTasks()
-                    } catch (e: Exception) {
-                        errorMessage = e.message ?: "Failed to add AI suggestion"
-                    }
-                }
-            }
-        )
-    }
-
-    taskToEdit?.let { task ->
-        PlannerTaskDialog(
-            titleText = "Edit Task",
-            initialTitle = task.title,
-            initialDescription = task.description ?: "",
-            initialDate = task.date,
-            initialTime = normalizeTimeForRequest(task.time),
-            initialTaskType = task.taskType,
-            confirmText = "Update",
-            onDismiss = { taskToEdit = null },
-            onConfirm = { title, description, date, time, taskType ->
-                scope.launch {
-                    try {
-                        repository.updateTask(
-                            task.id,
-                            PlannerTaskUpdateRequestDto(
-                                title = title,
-                                description = description.ifBlank { null },
-                                date = date,
-                                time = normalizeTimeForRequest(time),
-                                taskType = taskType,
-                                completed = task.completed
-                            )
-                        )
-                        taskToEdit = null
-                        loadTasks()
-                    } catch (e: Exception) {
-                        errorMessage = e.message ?: "Failed to update task"
-                    }
-                }
-            }
-        )
-    }
 }
 
 @Composable
 fun PlannerSuggestionCard(
     suggestion: PlannerSuggestionDto,
+    tasks: List<PlannerTaskResponseDto>,
     onAddClick: () -> Unit
 ) {
+
+    val alreadyAdded = tasks.any {
+        it.title.equals(suggestion.title, ignoreCase = true)
+    }
+
     Card(
-        modifier = Modifier.width(260.dp),
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFEFE6FF)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        modifier = Modifier
+            .width(270.dp)
+            .height(250.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = CardBackground
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(16.dp)
         ) {
             Text(
                 text = suggestion.suggestionType.replace("_", " "),
-                style = MaterialTheme.typography.labelMedium,
-                color = Color(0xFF7B61A8),
+                style = MaterialTheme.typography.labelLarge,
+                color = SavorySage,
                 fontWeight = FontWeight.SemiBold
             )
 
@@ -371,33 +445,60 @@ fun PlannerSuggestionCard(
             Text(
                 text = suggestion.title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF3D2F4F)
+                fontWeight = FontWeight.SemiBold,
+                color = TextPrimary
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = suggestion.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF5D516D)
-            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    text = suggestion.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = "${suggestion.suggestedDurationMinutes} min • ${suggestion.recommendedPartOfDay}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text(
-                text = "${suggestion.suggestedDurationMinutes} min • ${suggestion.recommendedPartOfDay}",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFF7E738D)
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            Button(
-                onClick = onAddClick,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Add to plan")
+            if (!alreadyAdded) {
+                Button(
+                    onClick = onAddClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AvocadoSmoothie,
+                        contentColor = WhiteSoft
+                    )
+                ) {
+                    Text("Add to plan")
+                }
+            } else {
+                Button(
+                    onClick = {},
+                    enabled = false,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = CardBackground,
+                        contentColor = TextSecondary
+                    )
+                ) {
+                    Text("Added")
+                }
             }
         }
     }
@@ -418,7 +519,7 @@ fun PlannerTaskStyledCard(
         modifier = Modifier.fillMaxWidth()
     ) {
         TaskTypeBadge(
-            label = task.taskType.replace("_", " "),
+            label = task.time,
             backgroundColor = badgeColor
         )
 
@@ -426,88 +527,94 @@ fun PlannerTaskStyledCard(
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(22.dp),
+            shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = cardColor),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Schedule,
-                        contentDescription = null,
-                        tint = Color(0xFF7A5C5C),
-                        modifier = Modifier.size(16.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(6.dp))
-
-                    Text(
-                        text = task.time,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF7A5C5C),
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = task.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4A3D3D)
+                Image(
+                    painter = painterResource(id = getTaskImage(task.taskType)),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(0.12f),
+                    contentScale = ContentScale.Crop
                 )
 
-                if (!task.description.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = task.description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF6E5B5B)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-                HorizontalDivider(color = Color.White.copy(alpha = 0.6f))
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(
-                            checked = task.completed,
-                            onCheckedChange = onCheckedChange
-                        )
+                    Text(
+                        text = task.taskType.replace("_", " "),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = SavorySage,
+                        fontWeight = FontWeight.SemiBold
+                    )
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = task.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextPrimary
+                    )
+
+                    if (!task.description.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = if (task.completed) "Completed" else "Mark done",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFF6E5B5B)
+                            text = task.description,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextSecondary
                         )
                     }
 
-                    Row {
-                        IconButton(onClick = onEditClick) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Edit task",
-                                tint = Color(0xFF8F5C5C)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    HorizontalDivider(color = WhiteSoft.copy(alpha = 0.7f))
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(
+                                checked = task.completed,
+                                onCheckedChange = onCheckedChange,
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = AvocadoSmoothie,
+                                    uncheckedColor = SavorySage
+                                )
+                            )
+
+                            Text(
+                                text = if (task.completed) "Completed" else "Mark done",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextSecondary
                             )
                         }
 
-                        IconButton(onClick = onDeleteClick) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete task",
-                                tint = Color(0xFF8F5C5C)
-                            )
+                        Row {
+                            IconButton(onClick = onEditClick) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Edit task",
+                                    tint = SavorySage
+                                )
+                            }
+
+                            IconButton(onClick = onDeleteClick) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete task",
+                                    tint = BlushBeet
+                                )
+                            }
                         }
                     }
                 }
@@ -524,7 +631,7 @@ fun TaskTypeBadge(
     Surface(
         shape = RoundedCornerShape(50),
         color = backgroundColor,
-        shadowElevation = 6.dp,
+        shadowElevation = 4.dp,
         modifier = Modifier.width(38.dp)
     ) {
         Box(
@@ -534,9 +641,9 @@ fun TaskTypeBadge(
                 .padding(vertical = 10.dp)
         ) {
             Text(
-                text = label,
+                text = label.substring(0,5),
                 modifier = Modifier.rotate(-90f),
-                color = Color.White,
+                color = WhiteSoft,
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold
             )
@@ -546,188 +653,26 @@ fun TaskTypeBadge(
 
 fun getTaskCardColor(taskType: String): Color {
     return when (taskType.uppercase()) {
-        "MEETING" -> Color(0xFFFFD9DE)
-        "STUDY" -> Color(0xFFE9C7FF)
-        "TRAVEL", "TRAVELING" -> Color(0xFFFFE08A)
-        "WORK" -> Color(0xFFCDEBFF)
-        "EXERCISE" -> Color(0xFFD7F5D8)
-        else -> Color(0xFFFFE7EC)
+        "MEETING" -> PeachProtein.copy(alpha = 0.9f)
+        "STUDY" -> BlushBeet.copy(alpha = 0.45f)
+        "TRAVEL", "TRAVELING" -> Color(0xFFE8DFC1)
+        "WORK" -> Color(0xFFDDE7D2)
+        "EXERCISE", "WALK" -> Color(0xFFD7E6C3)
+        "REST" -> CardBackground
+        else -> WhiteSoft
     }
 }
 
 fun getTaskBadgeColor(taskType: String): Color {
     return when (taskType.uppercase()) {
-        "MEETING" -> Color(0xFFD98C98)
-        "STUDY" -> Color(0xFFB26AE2)
-        "TRAVEL", "TRAVELING" -> Color(0xFFD8A800)
-        "WORK" -> Color(0xFF67A9D8)
-        "EXERCISE" -> Color(0xFF5CBF84)
-        else -> Color(0xFFE78A8A)
+        "MEETING" -> BlushBeet
+        "STUDY" -> Color(0xFFC5A7BC)
+        "TRAVEL", "TRAVELING" -> Color(0xFFC8B27A)
+        "WORK" -> SavorySage
+        "EXERCISE", "WALK" -> AvocadoSmoothie
+        "REST" -> Color(0xFFB8B5A6)
+        else -> SavorySage
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PlannerTaskDialog(
-    titleText: String,
-    initialTitle: String,
-    initialDescription: String,
-    initialDate: String,
-    initialTime: String,
-    initialTaskType: String,
-    confirmText: String,
-    onDismiss: () -> Unit,
-    onConfirm: (String, String, String, String, String) -> Unit
-) {
-    val context = LocalContext.current
-
-    var title by remember { mutableStateOf(initialTitle) }
-    var description by remember { mutableStateOf(initialDescription) }
-    var date by remember { mutableStateOf(initialDate) }
-    var time by remember { mutableStateOf(initialTime) }
-    var taskType by remember { mutableStateOf(initialTaskType) }
-
-    var expanded by remember { mutableStateOf(false) }
-
-    var showTimePicker by remember { mutableStateOf(false) }
-
-    val initialHour = initialTime.substringBefore(":").toIntOrNull() ?: 18
-    val initialMinute = initialTime.substringAfter(":").toIntOrNull() ?: 0
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = titleText,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Title") },
-                    singleLine = true
-                )
-
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Description") }
-                )
-
-
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { showTimePicker = true }
-                ) {
-                    OutlinedTextField(
-                        value = time,
-                        onValueChange = {},
-                        readOnly = true,
-                        enabled = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Time") },
-                        trailingIcon = {
-                            IconButton(onClick = { showTimePicker = true }) {
-                                Icon(
-                                    imageVector = Icons.Default.Schedule,
-                                    contentDescription = "Select time"
-                                )
-                            }
-                        }
-                    )
-                }
-
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }
-                ) {
-                    OutlinedTextField(
-                        value = taskType,
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor(),
-                        label = { Text("Task Type") },
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                        }
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        plannerTaskTypes.forEach { type ->
-                            DropdownMenuItem(
-                                text = { Text(type) },
-                                onClick = {
-                                    taskType = type
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    onConfirm(
-                        title.trim(),
-                        description.trim(),
-                        date.trim(),
-                        time.trim(),
-                        taskType.trim()
-                    )
-                },
-                enabled = title.isNotBlank()
-            ) {
-                Text(confirmText)
-            }
-        },
-        dismissButton = {
-            OutlinedButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-
-    if (showTimePicker) {
-        TimePickerDialog(
-            context,
-            { _, selectedHour, selectedMinute ->
-                time = String.format(
-                    Locale.getDefault(),
-                    "%02d:%02d",
-                    selectedHour,
-                    selectedMinute
-                )
-                showTimePicker = false
-            },
-            initialHour,
-            initialMinute,
-            true
-        ).apply {
-            setOnDismissListener {
-                showTimePicker = false
-            }
-        }.show()
-    }
-}
-
-private fun normalizeTimeForRequest(time: String): String {
-    return if (time.length >= 5) time.substring(0, 5) else time
 }
 
 private fun getSuggestedDefaultTime(partOfDay: String): String {
@@ -740,3 +685,14 @@ private fun getSuggestedDefaultTime(partOfDay: String): String {
     }
 }
 
+fun getTaskImage(taskType: String): Int {
+    return when (taskType.uppercase()) {
+        "WORK" -> R.drawable.flowers_transparent
+        "EXERCISE", "WALK" -> R.drawable.flowers_transparent
+        "STUDY" -> R.drawable.flowers_transparent
+        "TRAVEL" -> R.drawable.flowers_transparent
+        "MEETING" -> R.drawable.flowers_transparent
+        "REST" -> R.drawable.flowers_transparent
+        else -> R.drawable.flowers_transparent
+    }
+}

@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -20,14 +21,15 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -36,6 +38,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.activityapp.data.remote.dto.user.UpdateUserRequest
 import com.example.activityapp.data.repository.ActivityRepository
+import com.example.activityapp.ui.theme.AppBackground
+import com.example.activityapp.ui.theme.BlushBeet
+import com.example.activityapp.ui.theme.CardBackground
+import com.example.activityapp.ui.theme.Cream
+import com.example.activityapp.ui.theme.SavorySage
+import com.example.activityapp.ui.theme.TextPrimary
+import com.example.activityapp.ui.theme.TextSecondary
 import kotlinx.coroutines.launch
 
 data class EditDropdownOption(
@@ -101,14 +110,17 @@ fun EditProfileScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = AppBackground
     ) {
         if (loading) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center
             ) {
-                CircularProgressIndicator(modifier = Modifier.padding(start = 24.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(start = 24.dp),
+                    color = SavorySage
+                )
             }
         } else {
             Column(
@@ -120,7 +132,8 @@ fun EditProfileScreen(
                 Text(
                     text = "Edit profile",
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
@@ -128,62 +141,51 @@ fun EditProfileScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                    colors = CardDefaults.cardColors(containerColor = CardBackground),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(
                         modifier = Modifier.padding(18.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        OutlinedTextField(
+                        StyledOutlinedField(
                             value = firstName,
                             onValueChange = { firstName = it },
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text("First name") },
-                            singleLine = true
+                            label = "First name"
                         )
 
-                        OutlinedTextField(
+                        StyledOutlinedField(
                             value = lastName,
                             onValueChange = { lastName = it },
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Last name") },
-                            singleLine = true
+                            label = "Last name"
                         )
 
-                        OutlinedTextField(
+                        StyledOutlinedField(
                             value = email,
                             onValueChange = { email = it },
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Email") },
-                            singleLine = true
+                            label = "Email"
                         )
 
-                        OutlinedTextField(
+                        StyledOutlinedField(
                             value = age,
                             onValueChange = { age = it.filter { ch -> ch.isDigit() } },
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Age") },
-                            singleLine = true
+                            label = "Age"
                         )
 
-                        OutlinedTextField(
+                        StyledOutlinedField(
                             value = height,
                             onValueChange = { newValue ->
                                 height = newValue.filter { it.isDigit() || it == '.' }
                             },
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Height (cm)") },
-                            singleLine = true
+                            label = "Height (cm)"
                         )
 
-                        OutlinedTextField(
+                        StyledOutlinedField(
                             value = weight,
                             onValueChange = { newValue ->
                                 weight = newValue.filter { it.isDigit() || it == '.' }
                             },
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Weight (kg)") },
-                            singleLine = true
+                            label = "Weight (kg)"
                         )
 
                         EditDropdownField(
@@ -200,12 +202,10 @@ fun EditProfileScreen(
                             onOptionSelected = { goal = it }
                         )
 
-                        OutlinedTextField(
+                        StyledOutlinedField(
                             value = goalSteps,
                             onValueChange = { goalSteps = it.filter { ch -> ch.isDigit() } },
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Daily step goal") },
-                            singleLine = true
+                            label = "Daily step goal"
                         )
                     }
                 }
@@ -241,14 +241,21 @@ fun EditProfileScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
+                        .height(54.dp),
                     shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = BlushBeet,
+                        contentColor = Cream
+                    ),
                     enabled = !saving
                 ) {
                     if (saving) {
-                        CircularProgressIndicator(modifier = Modifier.height(22.dp))
+                        CircularProgressIndicator(color = Cream)
                     } else {
-                        Text("Save changes")
+                        Text(
+                            text = "Save changes",
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                 }
 
@@ -256,19 +263,58 @@ fun EditProfileScreen(
                     onClick = onBackClick,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Back")
+                    Text(
+                        text = "Back",
+                        color = SavorySage,
+                        style = MaterialTheme.typography.labelLarge
+                    )
                 }
 
                 if (message.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         text = message,
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun StyledOutlinedField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier.fillMaxWidth(),
+        label = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        singleLine = true,
+        shape = RoundedCornerShape(16.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Cream,
+            unfocusedContainerColor = Cream,
+            disabledContainerColor = Cream,
+            focusedBorderColor = BlushBeet,
+            unfocusedBorderColor = SavorySage.copy(alpha = 0.35f),
+            focusedLabelColor = BlushBeet,
+            unfocusedLabelColor = TextSecondary,
+            focusedTextColor = TextPrimary,
+            unfocusedTextColor = TextPrimary,
+            cursorColor = BlushBeet
+        ),
+        textStyle = MaterialTheme.typography.bodyLarge
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -291,22 +337,48 @@ private fun EditDropdownField(
             value = selectedLabel,
             onValueChange = {},
             readOnly = true,
-            label = { Text(label) },
+            label = {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor()
+                .menuAnchor(),
+            shape = RoundedCornerShape(16.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Cream,
+                unfocusedContainerColor = Cream,
+                disabledContainerColor = Cream,
+                focusedBorderColor = BlushBeet,
+                unfocusedBorderColor = SavorySage.copy(alpha = 0.35f),
+                focusedLabelColor = BlushBeet,
+                unfocusedLabelColor = TextSecondary,
+                focusedTextColor = TextPrimary,
+                unfocusedTextColor = TextPrimary,
+                cursorColor = BlushBeet
+            ),
+            textStyle = MaterialTheme.typography.bodyLarge
         )
 
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            //containerColor = CardBackground
         ) {
             options.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(option.label) },
+                    text = {
+                        Text(
+                            text = option.label,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextPrimary
+                        )
+                    },
                     onClick = {
                         onOptionSelected(option.value)
                         expanded = false

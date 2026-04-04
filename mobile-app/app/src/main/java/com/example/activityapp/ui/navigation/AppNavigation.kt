@@ -29,6 +29,7 @@ fun AppNavigation(
         composable(Screen.Dashboard.route) {
             MainScaffoldScreen(
                 title = "Dashboard",
+                userId = userId,
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
@@ -50,6 +51,7 @@ fun AppNavigation(
         composable(Screen.RecommendationDetails.route) {
             MainScaffoldScreen(
                 title = "Daily Recommendation",
+                userId = userId,
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
@@ -60,6 +62,7 @@ fun AppNavigation(
         composable(Screen.Nutrition.route) {
             MainScaffoldScreen(
                 title = "Nutrition",
+                userId = userId,
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
@@ -73,6 +76,7 @@ fun AppNavigation(
         composable(Screen.Wellness.route) {
             MainScaffoldScreen(
                 title = "Wellness",
+                userId = userId,
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
@@ -88,16 +92,21 @@ fun AppNavigation(
         composable(Screen.FreeTime.route) {
             MainScaffoldScreen(
                 title = "Free Time",
+                userId = userId,
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
-                FreeTimeScreen(userId = userId)
+                FreeTimeScreen(
+                    userId = userId,
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
 
         composable(Screen.Motivation.route) {
             MainScaffoldScreen(
                 title = "Motivation",
+                userId = userId,
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
@@ -108,6 +117,7 @@ fun AppNavigation(
         composable(Screen.Profile.route) {
             MainScaffoldScreen(
                 title = "Profile",
+                userId = userId,
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
@@ -118,6 +128,9 @@ fun AppNavigation(
                     },
                     onChangePasswordClick = {
                         navController.navigate("change_password")
+                    },
+                    onBackClick = {
+                        navController.popBackStack()
                     }
                 )
             }
@@ -126,6 +139,7 @@ fun AppNavigation(
         composable("edit_profile") {
             MainScaffoldScreen(
                 title = "Edit Profile",
+                userId = userId,
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
@@ -140,6 +154,7 @@ fun AppNavigation(
         composable("change_password") {
             MainScaffoldScreen(
                 title = "Change Password",
+                userId = userId,
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
@@ -154,10 +169,14 @@ fun AppNavigation(
         composable(Screen.Planner.route) {
             MainScaffoldScreen(
                 title = "Planner",
+                userId = userId,
                 navController = navController,
                 onLogoutClick = onLogoutClick
             ) {
-                PlannerScreen(userId = userId)
+                PlannerScreen(
+                    userId = userId,
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }
