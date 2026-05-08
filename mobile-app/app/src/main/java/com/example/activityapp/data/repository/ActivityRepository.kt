@@ -1,60 +1,77 @@
-package com.example.activityapp.data.repository
 
+package com.example.activityapp.data.repository
+import android.content.Context
 import com.example.activityapp.data.remote.RetrofitInstance
-import com.example.activityapp.data.remote.RetrofitInstance.api
 import com.example.activityapp.data.remote.dto.ActivityResponse
 import com.example.activityapp.data.remote.dto.CreateActivityRequest
 import com.example.activityapp.data.remote.dto.RecommendationResponse
+import com.example.activityapp.data.remote.dto.user.AuthResponse
 import com.example.activityapp.data.remote.dto.user.ChangePasswordRequest
-import com.example.activityapp.data.remote.dto.user.RegisterUserRequest
-import com.example.activityapp.data.remote.dto.user.UserResponse
 import com.example.activityapp.data.remote.dto.user.LoginUserRequest
+import com.example.activityapp.data.remote.dto.user.RegisterUserRequest
 import com.example.activityapp.data.remote.dto.user.UpdateUserRequest
+import com.example.activityapp.data.remote.dto.user.UserResponse
+import com.example.activityapp.data.remote.dto.wellness.WellnessDetailsResponse
+import com.example.activityapp.data.remote.dto.wellness.WellnessMoodRequest
 import okhttp3.MultipartBody
 
-class ActivityRepository {
+class ActivityRepository(private val context: Context) {
+
+    private fun api() = RetrofitInstance.api(context)
 
     suspend fun registerUser(request: RegisterUserRequest): UserResponse {
-        return RetrofitInstance.api.registerUser(request)
+        return api().registerUser(request)
     }
 
     suspend fun getUserById(id: Long): UserResponse {
-        return RetrofitInstance.api.getUserById(id)
+        return api().getUserById(id)
+    }
+
+    suspend fun getCurrentUser(): UserResponse {
+        return api().getCurrentUser()
     }
 
     suspend fun createActivity(request: CreateActivityRequest): ActivityResponse {
-        return RetrofitInstance.api.createActivity(request)
+        return api().createActivity(request)
     }
 
     suspend fun getActivitiesByUser(userId: Long): List<ActivityResponse> {
-        return RetrofitInstance.api.getActivitiesByUser(userId)
+        return api().getActivitiesByUser(userId)
     }
 
     suspend fun generateRecommendation(userId: Long): RecommendationResponse {
-        return RetrofitInstance.api.generateRecommendation(userId)
+        return api().generateRecommendation(userId)
     }
 
     suspend fun getLatestRecommendation(userId: Long): RecommendationResponse {
-        return RetrofitInstance.api.getLatestRecommendation(userId)
+        return api().getLatestRecommendation(userId)
     }
 
-    suspend fun loginUser(request: LoginUserRequest): UserResponse {
-        return RetrofitInstance.api.loginUser(request)
+    suspend fun loginUser(request: LoginUserRequest): AuthResponse {
+        return api().loginUser(request)
     }
 
     suspend fun getLatestActivity(userId: Long): ActivityResponse {
-        return RetrofitInstance.api.getLatestActivity(userId)
+        return api().getLatestActivity(userId)
     }
+
     suspend fun uploadProfileImage(userId: Long, imagePart: MultipartBody.Part): UserResponse {
-        return api.uploadProfileImage(userId, imagePart)
+        return api().uploadProfileImage(userId, imagePart)
     }
 
     suspend fun updateUser(userId: Long, request: UpdateUserRequest): UserResponse {
-        return api.updateUser(userId, request)
+        return api().updateUser(userId, request)
     }
 
     suspend fun changePassword(userId: Long, request: ChangePasswordRequest) {
-        api.changePassword(userId, request)
+        api().changePassword(userId, request)
     }
 
+    suspend fun getTodayWellness(userId: Long): WellnessDetailsResponse {
+        return api().getTodayWellness(userId)
+    }
+
+    suspend fun saveMoodAndGetWellness(userId: Long, request: WellnessMoodRequest): WellnessDetailsResponse {
+        return api().saveMoodAndGetWellness(userId, request)
+    }
 }

@@ -54,6 +54,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.example.activityapp.R
 
@@ -71,9 +72,12 @@ private val plannerTaskTypes = listOf(
 
 @Composable
 fun PlannerScreen(userId: Long, onBack: () -> Unit) {
-    val repository = remember { PlannerRepository() }
+    val context = LocalContext.current
+    val repository = remember { PlannerRepository(context) }
     val scope = rememberCoroutineScope()
-    val activityRepository = remember { ActivityRepository() }
+
+
+    val activityRepository = remember { ActivityRepository(context) }
 
     var tasks by remember { mutableStateOf<List<PlannerTaskResponseDto>>(emptyList()) }
     var errorMessage by remember { mutableStateOf("") }
@@ -216,9 +220,10 @@ fun PlannerScreen(userId: Long, onBack: () -> Unit) {
                         modifier = Modifier.size(40.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBackIosNew,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = TextPrimary
+                            tint = TextPrimary,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
 

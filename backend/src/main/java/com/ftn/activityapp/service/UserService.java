@@ -1,11 +1,14 @@
 package com.ftn.activityapp.service;
 
 import com.ftn.activityapp.dto.user.*;
+import com.ftn.activityapp.enums.Role;
 import com.ftn.activityapp.exception.BadRequestException;
 import com.ftn.activityapp.exception.ResourceNotFoundException;
 import com.ftn.activityapp.model.User;
 import com.ftn.activityapp.repository.UserRepository;
+import com.ftn.activityapp.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +18,9 @@ public class UserService {
     private final UserRepository userRepository;
 
     private final FileStorageService fileStorageService;
+
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
 
     // proverava da li email vec postoji
@@ -29,7 +35,7 @@ public class UserService {
 
         User user = User.builder()
                 .email(request.getEmail())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .age(request.getAge())
@@ -39,6 +45,7 @@ public class UserService {
                 .goal(request.getGoal())
                 .goalSteps(request.getGoalSteps())
                 .profileImageUrl(null)
+                .role(Role.USER)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -79,26 +86,18 @@ public class UserService {
                 .build();
     }
 
-    public UserResponse loginUser(LoginUserRequest request) {
+    public AuthResponse loginUser(LoginUserRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + request.getEmail()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if (!user.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadRequestException("Invalid password.");
         }
 
-        return UserResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .age(user.getAge())
-                .height(user.getHeight())
-                .weight(user.getWeight())
-                .activityLevel(user.getActivityLevel())
-                .goal(user.getGoal())
-                .goalSteps(user.getGoalSteps())
-                .profileImageUrl(user.getProfileImageUrl())
+        String token = jwtService.generateToken(user);
+
+        return AuthResponse.builder()
+                .token(token)
                 .build();
     }
 
@@ -165,6 +164,25 @@ public class UserService {
                 .build();
     }
 
+    public UserResponse getByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .age(user.getAge())
+                .height(user.getHeight())
+                .weight(user.getWeight())
+                .activityLevel(user.getActivityLevel())
+                .goal(user.getGoal())
+                .goalSteps(user.getGoalSteps())
+                .profileImageUrl(user.getProfileImageUrl())
+                .build();
+    }
+
 
     public void changePassword(Long userId, ChangePasswordRequest request) {
         User user = userRepository.findById(userId)
@@ -178,9 +196,14 @@ public class UserService {
             throw new BadRequestException("New password is required.");
         }
 
-        if (!user.getPassword().equals(request.getCurrentPassword())) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new BadRequestException("Current password is incorrect.");
         }
+
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new BadRequestException("New password must be different from the current password.");
+        }
+
 
         if (request.getNewPassword().length() < 6) {
             throw new BadRequestException("New password must have at least 6 characters.");
@@ -190,7 +213,7 @@ public class UserService {
             throw new BadRequestException("New password must be different from the current password.");
         }
 
-        user.setPassword(request.getNewPassword());
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
 }

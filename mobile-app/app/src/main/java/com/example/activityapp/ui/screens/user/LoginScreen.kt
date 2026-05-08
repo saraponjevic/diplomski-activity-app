@@ -1,5 +1,6 @@
 package com.example.activityapp.ui.screens.user
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -51,6 +52,7 @@ import com.example.activityapp.ui.theme.Cream
 import com.example.activityapp.ui.theme.OatLatte
 import com.example.activityapp.ui.theme.WhiteSoft
 import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun LoginScreen(
@@ -63,8 +65,12 @@ fun LoginScreen(
 
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val repository = ActivityRepository()
+
     val scope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+    val repository = ActivityRepository(context)
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -221,16 +227,25 @@ fun LoginScreen(
                             onClick = {
                                 scope.launch {
                                     try {
-                                        val request = LoginUserRequest(
-                                            email = email.value,
-                                            password = password.value
+                                        val authResponse = repository.loginUser(
+                                            LoginUserRequest(
+                                                email = email.value,
+                                                password = password.value
+                                            )
                                         )
 
-                                        val response = repository.loginUser(request)
-                                        message.value = "Login successful"
-                                        onLoginSuccess(response.id)
+                                        context.getSharedPreferences("app", Context.MODE_PRIVATE)
+                                            .edit()
+                                            .putString("token", authResponse.token)
+                                            .apply()
+
+                                        val currentUser = repository.getCurrentUser()
+
+                                        message.value = ""
+                                        onLoginSuccess(currentUser.id)
+
                                     } catch (e: Exception) {
-                                        message.value = "Error: ${e.message}"
+                                        message.value = e.message ?: "Login failed"
                                     }
                                 }
                             },

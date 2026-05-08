@@ -1,6 +1,7 @@
 package com.ftn.activityapp.model;
 
 import com.ftn.activityapp.enums.ActivityLevel;
+import com.ftn.activityapp.enums.Role;
 import com.ftn.activityapp.enums.UserGoal;
 import jakarta.persistence.*;
 import lombok.*;
@@ -47,4 +48,7 @@ public class User {
 
     @Column(name = "profile_image_url")
     private String profileImageUrl;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }

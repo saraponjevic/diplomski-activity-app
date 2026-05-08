@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.activityapp.data.remote.dto.RecommendationResponse
 import com.example.activityapp.data.repository.ActivityRepository
@@ -26,7 +27,8 @@ fun RecommendationsScreen(
     userId: Long,
     onBackClick: () -> Unit
 ) {
-    val repository = ActivityRepository()
+    val context = LocalContext.current
+    val repository = remember { ActivityRepository(context) }
 
     var recommendation by remember { mutableStateOf<RecommendationResponse?>(null) }
     var errorMessage by remember { mutableStateOf("") }

@@ -37,7 +37,10 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.activityapp.data.remote.dto.user.UserResponse
 import com.example.activityapp.data.repository.ActivityRepository
+
+
 import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +54,8 @@ fun MainScaffoldScreen(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val repository = remember { ActivityRepository() }
+    val context = LocalContext.current
+    val repository = remember { ActivityRepository(context) }
 
     var user by remember { mutableStateOf<UserResponse?>(null) }
 

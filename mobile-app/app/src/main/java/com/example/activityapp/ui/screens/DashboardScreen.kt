@@ -1,15 +1,33 @@
 package com.example.activityapp.ui.screens
 
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,32 +36,37 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.activityapp.data.remote.dto.ActivityResponse
-import com.example.activityapp.data.remote.dto.MotivationResponse
-import com.example.activityapp.data.remote.dto.RecommendationResponse
-import com.example.activityapp.data.repository.ActivityRepository
-import com.example.activityapp.ui.viewmodel.DashboardViewModel
-import java.util.Locale
-
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.activityapp.R
+import com.example.activityapp.data.remote.dto.ActivityResponse
+import com.example.activityapp.data.remote.dto.MotivationResponse
+import com.example.activityapp.data.remote.dto.RecommendationResponse
+
+import com.example.activityapp.ui.theme.AppBackground
+import com.example.activityapp.ui.theme.AvocadoSmoothie
+import com.example.activityapp.ui.theme.BlushBeet
+import com.example.activityapp.ui.theme.CardBackground
+import com.example.activityapp.ui.theme.Cream
+import com.example.activityapp.ui.theme.OatLatte
+import com.example.activityapp.ui.theme.PeachProtein
+import com.example.activityapp.ui.theme.SavorySage
+import com.example.activityapp.ui.theme.TextPrimary
+import com.example.activityapp.ui.theme.TextSecondary
+import com.example.activityapp.ui.theme.WhiteSoft
+import com.example.activityapp.ui.viewmodel.DashboardViewModel
+import com.example.activityapp.data.repository.ActivityRepository
 
 @Composable
 fun DashboardScreen(
@@ -57,7 +80,8 @@ fun DashboardScreen(
     val latestRecommendation by dashboardViewModel.latestRecommendation.collectAsState()
     val errorMessage by dashboardViewModel.errorMessage.collectAsState()
 
-    val repository = remember { ActivityRepository() }
+    val context = LocalContext.current
+    val repository = remember { ActivityRepository(context) }
 
     var activities by remember { mutableStateOf<List<ActivityResponse>>(emptyList()) }
     var weeklyStatsError by remember { mutableStateOf("") }
@@ -72,50 +96,91 @@ fun DashboardScreen(
         }
     }
 
-    LazyColumn(
+    Surface(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        color = AppBackground
     ) {
-        item {
-            Text(
-                text = "Daily Activity",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-        item {
-            DailyActivityCard(
-                latestActivity = latestActivity,
-                errorMessage = errorMessage
-            )
-        }
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(Cream, shape = RoundedCornerShape(20.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.jagodaa),
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
 
-        item {
-            latestRecommendation?.let {
-                MainRecommendationCard(
-                    recommendation = it,
-                    onClick = onRecommendationClick
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = CardBackground,
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = "Hello, ${latestActivity?.let { "User" } ?: ""}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextPrimary
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(CardBackground, shape = CircleShape)
+                            .offset(x = (-6).dp, y = 10.dp)
+                    )
+                }
+            }
+
+            item {
+                DailyActivityCard(
+                    latestActivity = latestActivity,
+                    errorMessage = errorMessage
                 )
             }
-        }
 
-        item {
-            latestRecommendation?.motivation?.let {
-                MotivationCard(
-                    motivation = it,
-                    onClick = onMotivationClick
+            item {
+                latestRecommendation?.let {
+                    MainRecommendationCard(
+                        recommendation = it,
+                        onClick = onRecommendationClick
+                    )
+                }
+            }
+
+            item {
+                latestRecommendation?.motivation?.let {
+                    MotivationCard(
+                        motivation = it,
+                        onClick = onMotivationClick
+                    )
+                }
+            }
+
+            item {
+                WeeklyStatsCard(
+                    activities = activities,
+                    errorMessage = weeklyStatsError,
+                    onClick = onWeeklyStatsClick
                 )
             }
-        }
-
-        item {
-            WeeklyStatsCard(
-                activities = activities,
-                errorMessage = weeklyStatsError,
-                onClick = onWeeklyStatsClick
-            )
         }
     }
 }
@@ -127,62 +192,100 @@ fun DailyActivityCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp)
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
+            Text(
+                text = "Today’s steps",
+                style = MaterialTheme.typography.titleLarge,
+                color = TextPrimary,
+                fontWeight = FontWeight.SemiBold
+            )
 
-            if (latestActivity != null) {
-                val steps = latestActivity.steps
-                val goal = latestActivity.goalSteps
+            when {
+                latestActivity != null -> {
+                    val steps = latestActivity.steps
+                    val goal = latestActivity.goalSteps
 
-                val percentage = if (goal > 0) {
-                    (steps.toFloat() / goal.toFloat()).coerceIn(0f, 1f)
-                } else 0f
+                    val percentage = if (goal > 0) {
+                        (steps.toFloat() / goal.toFloat()).coerceIn(0f, 1f)
+                    } else 0f
 
-                val activityLevel = when {
-                    steps < 3000 -> "Low"
-                    steps < 7000 -> "Moderate"
-                    else -> "High"
-                }
-
-                // 🔵 GORNJI DEO (steps + krug)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Column {
-                        Text(
-                            "Steps today",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-
-                        Text(
-                            "$steps",
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        Text(
-                            "Goal: $goal",
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                    val activityLevel = when {
+                        steps < 3000 -> "Low"
+                        steps < 7000 -> "Moderate"
+                        else -> "High"
                     }
 
-                    CircularProgressSteps(percentage)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = "Steps today",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = TextSecondary
+                            )
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            Text(
+                                text = "$steps",
+                                style = MaterialTheme.typography.headlineLarge,
+                                color = TextPrimary,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            Text(
+                                text = "Goal: $goal",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = TextSecondary
+                            )
+                        }
+
+                        CircularProgressSteps(progress = percentage)
+                    }
+
+                    ActivityLevelBadge(activityLevel)
                 }
 
-                ActivityLevelBadge(activityLevel)
-            } else {
-                Text("Loading activity...")
-            }
+                !errorMessage.isNullOrEmpty() -> {
+                    Text(
+                        text = "Error: $errorMessage",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = BlushBeet
+                    )
+                }
 
-            if (!errorMessage.isNullOrEmpty()) {
-                Text("Error: $errorMessage")
+                else -> {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(22.dp),
+                            color = SavorySage,
+                            strokeWidth = 2.5.dp
+                        )
+
+                        Text(
+                            text = "Loading activity...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextSecondary
+                        )
+                    }
+                }
             }
         }
     }
@@ -192,58 +295,70 @@ fun DailyActivityCard(
 fun CircularProgressSteps(progress: Float) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(90.dp)
+        modifier = Modifier.size(96.dp)
     ) {
-        Canvas(modifier = Modifier.size(90.dp)) {
-
+        Canvas(modifier = Modifier.size(96.dp)) {
             drawArc(
-                color = Color(0xFFE0E0E0),
-                startAngle = 0f,
+                color = Cream,
+                startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
-                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 14f)
+                style = Stroke(width = 16f, cap = StrokeCap.Round)
             )
 
             drawArc(
-                color = Color(0xFF7E57C2),
+                color = SavorySage,
                 startAngle = -90f,
                 sweepAngle = 360f * progress,
                 useCenter = false,
-                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 14f)
+                style = Stroke(width = 16f, cap = StrokeCap.Round)
             )
         }
 
-        Text(
-            text = "${(progress * 100).toInt()}%",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "${(progress * 100).toInt()}%",
+                style = MaterialTheme.typography.titleMedium,
+                color = TextPrimary,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = "done",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary
+            )
+        }
     }
 }
 
 @Composable
 fun ActivityLevelBadge(level: String) {
+    val backgroundColor = when (level) {
+        "Low" -> BlushBeet.copy(alpha = 0.30f)
+        "Moderate" -> PeachProtein.copy(alpha = 0.65f)
+        else -> AvocadoSmoothie.copy(alpha = 0.35f)
+    }
 
-    val color = when (level) {
-        "Low" -> Color(0xFFE57373)
-        "Moderate" -> Color(0xFFFFB74D)
-        else -> Color(0xFF66BB6A)
+    val textColor = when (level) {
+        "Low" -> TextPrimary
+        "Moderate" -> TextPrimary
+        else -> TextPrimary
     }
 
     Box(
         modifier = Modifier
-            .background(color.copy(alpha = 0.15f), RoundedCornerShape(16.dp))
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(backgroundColor, RoundedCornerShape(18.dp))
+            .padding(horizontal = 16.dp, vertical = 9.dp)
     ) {
         Text(
             text = "Activity level: $level",
-            color = color,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.labelLarge,
+            color = textColor,
+            fontWeight = FontWeight.SemiBold
         )
     }
 }
-
-
 
 fun formatDailyState(state: String?): String {
     return when (state) {
@@ -267,17 +382,59 @@ fun MainRecommendationCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable { onClick() },
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = WhiteSoft),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text("Daily Recommendation", fontWeight = FontWeight.Bold)
-            Text( formatDailyState(recommendation.dailyState))
-            Text(recommendation.message ?: "No message")
-            Text("Intensity: ${recommendation.intensity ?: "No data"}")
-            Text("Duration: ${recommendation.durationMinutes ?: 0} min")
+            Text(
+                text = "Daily recommendation",
+                style = MaterialTheme.typography.titleLarge,
+                color = TextPrimary,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = AvocadoSmoothie.copy(alpha = 0.28f),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = formatDailyState(recommendation.dailyState),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextPrimary,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Text(
+                text = recommendation.message ?: "No message",
+                style = MaterialTheme.typography.bodyLarge,
+                color = TextPrimary
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                InfoChip(
+                    title = "Intensity",
+                    value = recommendation.intensity ?: "No data",
+                    background = PeachProtein
+                )
+
+                InfoChip(
+                    title = "Duration",
+                    value = "${recommendation.durationMinutes ?: 0} min",
+                    background = OatLatte
+                )
+            }
         }
     }
 }
@@ -290,18 +447,61 @@ fun MotivationCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable { onClick() },
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text("Motivation", fontWeight = FontWeight.Bold)
-            Text(motivation.message ?: "No data")
+            Text(
+                text = "Motivation",
+                style = MaterialTheme.typography.titleLarge,
+                color = TextPrimary,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Text(
+                text = motivation.message ?: "No data",
+                style = MaterialTheme.typography.bodyLarge,
+                color = TextPrimary
+            )
         }
     }
 }
 
+@Composable
+fun InfoChip(
+    title: String,
+    value: String,
+    background: androidx.compose.ui.graphics.Color
+) {
+    Column(
+        modifier = Modifier
+            .background(
+                color = background.copy(alpha = 0.65f),
+                shape = RoundedCornerShape(18.dp)
+            )
+            .padding(horizontal = 14.dp, vertical = 10.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodySmall,
+            color = TextSecondary
+        )
+
+        Spacer(modifier = Modifier.height(2.dp))
+
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextPrimary,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
 
 @Composable
 fun WeeklyStepsBarChart(
@@ -313,18 +513,19 @@ fun WeeklyStepsBarChart(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
             text = "Steps by day",
             style = MaterialTheme.typography.titleMedium,
+            color = TextPrimary,
             fontWeight = FontWeight.SemiBold
         )
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(180.dp),
+                .height(190.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
         ) {
@@ -337,56 +538,69 @@ fun WeeklyStepsBarChart(
                 ) {
                     Text(
                         text = activity.steps.toString(),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary
                     )
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     WeeklyBar(
                         fraction = fraction,
                         isGoalReached = activity.steps >= activity.goalSteps
                     )
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
                         text = formatShortDate(activity.date),
                         style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary,
                         textAlign = TextAlign.Center
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(12.dp)
-                    .background(
-                        color = Color(0xFF7E57C2),
-                        shape = RoundedCornerShape(4.dp)
-                    )
+            LegendItem(
+                color = SavorySage,
+                text = "Goal not reached"
             )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text("Goal not reached", style = MaterialTheme.typography.bodySmall)
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Box(
-                modifier = Modifier
-                    .size(12.dp)
-                    .background(
-                        color = Color(0xFF66BB6A),
-                        shape = RoundedCornerShape(4.dp)
-                    )
+            LegendItem(
+                color = AvocadoSmoothie,
+                text = "Goal reached"
             )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text("Goal reached", style = MaterialTheme.typography.bodySmall)
         }
+    }
+}
+
+@Composable
+fun LegendItem(
+    color: androidx.compose.ui.graphics.Color,
+    text: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .background(color = color, shape = RoundedCornerShape(4.dp))
+        )
+
+        Spacer(modifier = Modifier.width(6.dp))
+
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = TextSecondary
+        )
     }
 }
 
@@ -396,28 +610,28 @@ fun WeeklyBar(
     isGoalReached: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val barColor = if (isGoalReached) Color(0xFF66BB6A) else Color(0xFF7E57C2)
+    val barColor = if (isGoalReached) AvocadoSmoothie else SavorySage
 
     Canvas(
         modifier = modifier
-            .width(28.dp)
-            .height(110.dp)
+            .width(30.dp)
+            .height(112.dp)
     ) {
         val barWidth = size.width
         val barHeight = size.height * fraction.coerceIn(0f, 1f)
 
         drawRoundRect(
-            color = Color(0xFFE6E0EC),
+            color = Cream,
             topLeft = Offset(0f, 0f),
             size = Size(barWidth, size.height),
-            cornerRadius = CornerRadius(12f, 12f)
+            cornerRadius = CornerRadius(14f, 14f)
         )
 
         drawRoundRect(
             color = barColor,
             topLeft = Offset(0f, size.height - barHeight),
             size = Size(barWidth, barHeight),
-            cornerRadius = CornerRadius(12f, 12f)
+            cornerRadius = CornerRadius(14f, 14f)
         )
     }
 }
@@ -454,35 +668,116 @@ fun WeeklyStatsCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable { onClick() },
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = WhiteSoft),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Weekly Statistics", fontWeight = FontWeight.Bold)
+            Text(
+                text = "Weekly statistics",
+                style = MaterialTheme.typography.titleLarge,
+                color = TextPrimary,
+                fontWeight = FontWeight.SemiBold
+            )
 
             when {
                 errorMessage.isNotEmpty() -> {
-                    Text("Error: $errorMessage")
+                    Text(
+                        text = "Error: $errorMessage",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = BlushBeet
+                    )
                 }
 
                 activities.isEmpty() -> {
-                    Text("No activity data available.")
+                    Text(
+                        text = "No activity data available.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextSecondary
+                    )
                 }
 
                 else -> {
-                    Text("Average steps: ${averageSteps.toInt()}")
-                    Text("Goal reached days: $goalReachedDays")
-                    Text("Tracked days: ${activities.size}")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        StatsMiniCard(
+                            modifier = Modifier.weight(1f),
+                            title = "Average",
+                            value = averageSteps.toInt().toString(),
+                            subtitle = "steps",
+                            background = PeachProtein
+                        )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                        StatsMiniCard(
+                            modifier = Modifier.weight(1f),
+                            title = "Reached",
+                            value = goalReachedDays.toString(),
+                            subtitle = "days",
+                            background = OatLatte
+                        )
+
+                        StatsMiniCard(
+                            modifier = Modifier.weight(1f),
+                            title = "Tracked",
+                            value = activities.size.toString(),
+                            subtitle = "days",
+                            background = AvocadoSmoothie.copy(alpha = 0.55f)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     WeeklyStepsBarChart(activities = activities)
                 }
             }
         }
     }
+}
 
+@Composable
+fun StatsMiniCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    value: String,
+    subtitle: String,
+    background: androidx.compose.ui.graphics.Color
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = background),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 14.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary
+            )
 
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleLarge,
+                color = TextPrimary,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary
+            )
+        }
+    }
 }

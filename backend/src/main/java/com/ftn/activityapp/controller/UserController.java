@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,16 +23,21 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(userService.getByEmail(email));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
-        UserResponse response = userService.getUserById(id);
-        return ResponseEntity.ok(response);
+        //System.out.println("GET USER BY ID: " + id);
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> loginUser(@RequestBody LoginUserRequest request) {
-        UserResponse response = userService.loginUser(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<AuthResponse> loginUser(@RequestBody LoginUserRequest request) {
+        return ResponseEntity.ok(userService.loginUser(request));
     }
 
     @PostMapping(value = "/{userId}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

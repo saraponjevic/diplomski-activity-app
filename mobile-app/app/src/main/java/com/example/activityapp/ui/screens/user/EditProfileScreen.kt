@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.activityapp.data.remote.dto.user.UpdateUserRequest
@@ -59,7 +60,8 @@ fun EditProfileScreen(
     onBackClick: () -> Unit,
     onSaveSuccess: () -> Unit
 ) {
-    val repository = ActivityRepository()
+    val context = LocalContext.current
+    val repository = remember { ActivityRepository(context) }
     val scope = rememberCoroutineScope()
 
     var firstName by remember { mutableStateOf("") }
@@ -90,16 +92,16 @@ fun EditProfileScreen(
 
     LaunchedEffect(userId) {
         try {
-            val user = repository.getUserById(userId)
+            val user = repository.getCurrentUser()
             firstName = user.firstName
             lastName = user.lastName
             email = user.email
-            age = user.age.toString()
-            height = user.height.toString()
-            weight = user.weight.toString()
-            activityLevel = user.activityLevel
-            goal = user.goal
-            goalSteps = user.goalSteps.toString()
+            age = user.age?.toString() ?: ""
+            height = user.height?.toString() ?: ""
+            weight = user.weight?.toString() ?: ""
+            activityLevel = user.activityLevel ?: ""
+            goal = user.goal ?: ""
+            goalSteps = user.goalSteps?.toString() ?: ""
             message = ""
         } catch (e: Exception) {
             message = e.message ?: "Failed to load profile"
@@ -228,6 +230,7 @@ fun EditProfileScreen(
                                     weight = weight.toDoubleOrNull() ?: 0.0,
                                     activityLevel = activityLevel,
                                     goal = goal,
+                                  //  goalSteps = goalSteps.toIntOrNull() ?: 0
                                 )
 
                                 repository.updateUser(userId, request)

@@ -50,9 +50,10 @@ fun WellnessResultScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBackIosNew,
-                            contentDescription = null,
-                            tint = TextPrimary
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = TextPrimary,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
 

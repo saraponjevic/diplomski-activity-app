@@ -6,6 +6,7 @@ import com.example.activityapp.data.remote.dto.RecommendationResponse
 import com.example.activityapp.data.remote.dto.planner.PlannerTaskCreateRequestDto
 import com.example.activityapp.data.remote.dto.planner.PlannerTaskResponseDto
 import com.example.activityapp.data.remote.dto.planner.PlannerTaskUpdateRequestDto
+import com.example.activityapp.data.remote.dto.user.AuthResponse
 import com.example.activityapp.data.remote.dto.user.ChangePasswordRequest
 import com.example.activityapp.data.remote.dto.user.RegisterUserRequest
 import com.example.activityapp.data.remote.dto.user.UserResponse
@@ -37,6 +38,9 @@ interface ApiService {
         @Path("id") id: Long
     ): UserResponse
 
+    @GET("api/users/me")
+    suspend fun getCurrentUser(): UserResponse
+
     @POST("api/activities")
     suspend fun createActivity(
         @Body request: CreateActivityRequest
@@ -60,7 +64,7 @@ interface ApiService {
     @POST("api/users/login")
     suspend fun loginUser(
         @Body request: LoginUserRequest
-    ): UserResponse
+    ): AuthResponse
 
     @GET("api/activities/user/{userId}/latest")
     suspend fun getLatestActivity(

@@ -93,7 +93,8 @@ fun RegisterScreen(
     var currentStep by remember { mutableIntStateOf(1) }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val repository = ActivityRepository()
+    val context = LocalContext.current
+    val repository = remember { ActivityRepository(context) }
     val scope = rememberCoroutineScope()
 
     val activityOptions = listOf(
@@ -110,7 +111,7 @@ fun RegisterScreen(
 
     val progress = currentStep / 4f
 
-    val context = LocalContext.current
+
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(

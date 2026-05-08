@@ -1,8 +1,8 @@
 package com.example.activityapp.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.activityapp.data.remote.RetrofitInstance.api
 import com.example.activityapp.data.remote.dto.ActivityResponse
 import com.example.activityapp.data.remote.dto.RecommendationResponse
 import com.example.activityapp.data.remote.dto.wellness.WellnessDetailsResponse
@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class DashboardViewModel : ViewModel() {
+class DashboardViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ActivityRepository()
+    private val repository = ActivityRepository(getApplication())
 
     private val _latestActivity = MutableStateFlow<ActivityResponse?>(null)
     val latestActivity: StateFlow<ActivityResponse?> = _latestActivity
@@ -46,9 +46,8 @@ class DashboardViewModel : ViewModel() {
     fun loadTodayWellness(userId: Long) {
         viewModelScope.launch {
             try {
-                val response = api.getTodayWellness(userId)
+                val response = repository.getTodayWellness(userId)
                 _wellnessDetails.value = response
-
                 _hasSelectedMood.value = true
             } catch (e: Exception) {
                 _wellnessDetails.value = null
@@ -61,7 +60,7 @@ class DashboardViewModel : ViewModel() {
     fun selectMood(userId: Long, mood: String) {
         viewModelScope.launch {
             try {
-                val response = api.saveMoodAndGetWellness(
+                val response = repository.saveMoodAndGetWellness(
                     userId,
                     WellnessMoodRequest(mood)
                 )

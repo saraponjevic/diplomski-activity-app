@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
@@ -72,8 +73,9 @@ fun ProfileScreen(
     onChangePasswordClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
-    val repository = ActivityRepository()
+
     val context = LocalContext.current
+    val repository = remember { ActivityRepository(context) }
     val scope = rememberCoroutineScope()
 
     var user by remember { mutableStateOf<UserResponse?>(null) }
@@ -101,7 +103,7 @@ fun ProfileScreen(
 
     LaunchedEffect(userId) {
         try {
-            user = repository.getUserById(userId)
+            user = repository.getCurrentUser()
             errorMessage = ""
         } catch (e: Exception) {
             errorMessage = e.message ?: "Unknown error"
@@ -159,10 +161,10 @@ fun ProfileScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.ArrowBackIosNew,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
-                                tint = SavorySage,
-                                modifier = Modifier.size(18.dp)
+                                tint = TextPrimary,
+                                modifier = Modifier.size(24.dp)
                             )
                         }
 
@@ -184,13 +186,14 @@ fun ProfileScreen(
                         colors = CardDefaults.cardColors(containerColor = CardBackground),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
-                        Column(
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(24.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
                             Box(
+                                modifier = Modifier.padding(end = 16.dp),
                                 contentAlignment = Alignment.BottomEnd
                             ) {
                                 ProfileAvatar(
@@ -217,23 +220,18 @@ fun ProfileScreen(
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Text(
-                                text = "${currentUser.firstName} ${currentUser.lastName}",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = TextPrimary
-                            )
-
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Email,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp),
-                                    tint = TextSecondary
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = "${currentUser.firstName} ${currentUser.lastName}",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextPrimary
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
                                 Text(
                                     text = currentUser.email,
                                     style = MaterialTheme.typography.bodyMedium,
@@ -480,20 +478,22 @@ private fun InfoRow(label: String, value: String) {
     }
 }
 
-private fun formatActivityLevel(value: String): String {
+private fun formatActivityLevel(value: String?): String {
     return when (value) {
         "LOW" -> "Low"
         "MEDIUM" -> "Medium"
         "HIGH" -> "High"
+        null -> "No data"
         else -> value
     }
 }
 
-private fun formatGoal(value: String): String {
+private fun formatGoal(value: String?): String {
     return when (value) {
         "INCREASE_ACTIVITY" -> "Increase activity"
         "MAINTAIN_CONDITION" -> "Maintain condition"
         "BUILD_HABIT" -> "Build habit"
+        null -> "No data"
         else -> value
     }
 }

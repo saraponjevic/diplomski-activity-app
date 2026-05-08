@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -48,7 +49,8 @@ fun ChangePasswordScreen(
     onBackClick: () -> Unit,
     onSaveSuccess: () -> Unit
 ) {
-    val repository = ActivityRepository()
+    val context = LocalContext.current
+    val repository = remember { ActivityRepository(context) }
     val scope = rememberCoroutineScope()
 
     var currentPassword by remember { mutableStateOf("") }

@@ -62,9 +62,10 @@ fun FreeTimeScreen(
                     modifier = Modifier.size(40.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBackIosNew,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = TextPrimary
+                        tint = TextPrimary,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
 
